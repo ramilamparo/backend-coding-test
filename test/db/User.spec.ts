@@ -1,6 +1,6 @@
 import { MockDB } from "../test-utils/mocks/DB";
 import { User } from "../../src/db/User";
-import { User as DummyUser } from "../test-utils/dummy-generator/User";
+import { DummyUser } from "../test-utils/dummy-generator/DummyUser";
 
 describe("User Model", () => {
 	const mockConnection = new MockDB();
@@ -19,6 +19,22 @@ describe("User Model", () => {
 
 		test("Disallow duplicate emails.", async () => {
 			const dummyUserData = DummyUser.createDummyData();
+
+			await User.create(dummyUserData).save();
+
+			try {
+				await User.create(dummyUserData).save();
+				throw new Error("Duplicate email did not throw!");
+			} catch (e) {
+				expect(e).toBeInstanceOf(Error);
+			}
+		});
+
+		test("Disallow duplicate firebase ID.", async () => {
+			const FIREBASE_ID = "1";
+			const dummyUserData = DummyUser.createDummyData({
+				firebaseId: FIREBASE_ID
+			});
 
 			await User.create(dummyUserData).save();
 
