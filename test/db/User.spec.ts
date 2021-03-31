@@ -54,7 +54,15 @@ describe("User Model", () => {
 				DummyUser.createDummyData({ email: "email2@mail.com" })
 			];
 
-			await Promise.all(dummyUsers.map((user) => User.create(user).save()));
+			await Promise.all(
+				dummyUsers.map((user) =>
+					User.create({
+						dateOfBirth: user.dateOfBirth,
+						email: user.email,
+						firebaseId: user.firebaseId
+					}).save()
+				)
+			);
 
 			const foundUsers = await User.find();
 

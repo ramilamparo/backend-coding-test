@@ -1,12 +1,24 @@
 import { DBConnection } from "../../../src/db/DBConnection";
-import { Connection, EntityMetadata } from "typeorm";
+import { Connection, createConnection, EntityMetadata } from "typeorm";
 
-export class MockDB {
+export class MockDB extends DBConnection {
+	private connection: Promise<Connection>;
+
 	constructor() {
-		this.connection = DBConnection.initialize();
+		super();
+		this.connection = this.createConnection();
 	}
 
-	private connection: Promise<Connection>;
+	private createConnection = () => {
+		return createConnection({
+			type: "sqlite",
+			database: ":memory:",
+			dropSchema: true,
+			entities: DBConnection.entities,
+			synchronize: true,
+			logging: false
+		});
+	};
 
 	public reset = async () => {
 		await this.cleanAll();

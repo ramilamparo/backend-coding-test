@@ -1,26 +1,15 @@
 import { createConnection } from "typeorm";
 import { PostgresConnectionOptions } from "typeorm/driver/postgres/PostgresConnectionOptions";
-import { EnvVars } from "../config/EnvVars";
 import { User } from "./User";
 
 export abstract class DBConnection {
-	public static initialize = () => {
-		const entities: PostgresConnectionOptions["entities"] = [User];
+	protected static entities: PostgresConnectionOptions["entities"] = [User];
 
-		if (EnvVars.environment === "test") {
-			return createConnection({
-				type: "sqlite",
-				database: ":memory:",
-				dropSchema: true,
-				entities,
-				synchronize: true,
-				logging: false
-			});
-		}
+	public static initialize = () => {
 		return createConnection({
 			type: "postgres",
 			database: "backend-coding-test",
-			entities,
+			entities: DBConnection.entities,
 			logging: true
 		});
 	};
