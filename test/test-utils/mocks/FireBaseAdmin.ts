@@ -1,6 +1,25 @@
 import * as firebaseAdmin from "firebase-admin";
 import * as faker from "faker";
 
+jest.mock("firebase-admin");
+const firebaseAuthCreateUser = jest.fn(({ email }) => {
+	return Promise.resolve({
+		uid: faker.unique(faker.git.commitSha),
+		email
+	});
+});
+const firebaseAuthDeleteUser = jest.fn(() => Promise.resolve());
+const firebaseAuth = jest.fn(() => ({
+	createUser: firebaseAuthCreateUser,
+	deleteUser: firebaseAuthDeleteUser
+}));
+const firebaseApp = {
+	auth: firebaseAuth
+};
+(firebaseAdmin as jest.Mocked<
+	typeof firebaseAdmin
+>).initializeApp.mockReturnValue(firebaseApp as any);
+
 export class MockFireBaseAuth {
 	public static mock = () => {
 		return new MockFireBaseAuth();
@@ -8,22 +27,6 @@ export class MockFireBaseAuth {
 	private firebaseAuthCreateUser: jest.Mock;
 	private firebaseAuthDeleteUser: jest.Mock;
 	private constructor() {
-		jest.mock("firebase-admin");
-		const firebaseAuthCreateUser = jest.fn(({ email }) => {
-			return Promise.resolve({
-				uid: faker.unique(faker.git.commitSha),
-				email
-			});
-		});
-		const firebaseAuthDeleteUser = jest.fn(() => Promise.resolve());
-		const firebaseApp = {
-			createUser: firebaseAuthCreateUser,
-			deleteUser: firebaseAuthDeleteUser
-		};
-		(firebaseAdmin as jest.Mocked<
-			typeof firebaseAdmin
-		>).initializeApp.mockReturnValue(firebaseApp as any);
-
 		this.firebaseAuthCreateUser = firebaseAuthCreateUser;
 		this.firebaseAuthDeleteUser = firebaseAuthDeleteUser;
 	}
@@ -33,13 +36,10 @@ export class MockFireBaseAuth {
 		this.firebaseAuthDeleteUser.mockClear();
 	};
 
-	public hasCreatedUser = (username: string, password: string) => {
+	public hasCreatedUser = (email: string, password: string) => {
 		return this.firebaseAuthCreateUser.mock.calls.some((parameters) => {
-			const {
-				username: usernameParam,
-				password: passwordParam
-			} = parameters[0];
-			return username === usernameParam && password === passwordParam;
+			const { email: emailParam, password: passwordParam } = parameters[0];
+			return email === emailParam && password === passwordParam;
 		});
 	};
 

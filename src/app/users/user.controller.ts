@@ -59,8 +59,9 @@ export class UserController {
 
 		if (from && to) {
 			users = await this.service.getPaginatedUsers(from, to);
+		} else {
+			users = await this.service.getAllUsers();
 		}
-		users = await this.service.getAllUsers();
 
 		return users.map((user) => this.mapUserModelToGetResponse(user));
 	}

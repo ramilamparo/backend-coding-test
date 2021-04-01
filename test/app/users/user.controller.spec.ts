@@ -1,4 +1,5 @@
 import { Test, TestingModule } from "@nestjs/testing";
+import { MockFireBaseAuth } from "../../test-utils/mocks/FireBaseAdmin";
 import { ResourceNotFoundError } from "../../../src/app/exceptions/ResourceNotFoundError";
 import { DummyUser } from "../../test-utils/dummy-generator/DummyUser";
 import { MockDB } from "../../test-utils/mocks/DB";
@@ -8,7 +9,6 @@ import {
 	UserControllerPostResponse
 } from "../../../src/app/users/user.controller";
 import { UserService } from "../../../src/app/users/user.service";
-import { MockFireBaseAuth } from "../../test-utils/mocks/FireBaseAdmin";
 
 describe("UserController", () => {
 	let userController: UserController;
@@ -87,13 +87,9 @@ describe("UserController", () => {
 			}
 			return Promise.all(promises);
 		};
-		let createdUsers: UserControllerGetResponse[] = [];
-
-		beforeAll(async () => {
-			createdUsers = await insertManyUsers(100);
-		});
 
 		it("Shoud read all created users", async () => {
+			const createdUsers = await insertManyUsers(100);
 			const foundUsers = await userController.getUsers();
 
 			createdUsers.forEach((createdUser) => {
@@ -111,24 +107,26 @@ describe("UserController", () => {
 			});
 		});
 		it("Should return a paginated set of users", async () => {
+			const createdUsers = await insertManyUsers(100);
 			const foundUsersPage1 = await userController.getUsers(1, 50);
 			const foundUsersPage2 = await userController.getUsers(51, 100);
 			const foundUsersPage3 = await userController.getUsers(101, 200);
 
+			expect(foundUsersPage1).toHaveLength(50);
+			expect(foundUsersPage2).toHaveLength(50);
 			expect(foundUsersPage3).toHaveLength(0);
 			createdUsers.forEach((createdUser, index) => {
 				let foundUser: UserControllerGetResponse | undefined;
-				if (index < 50) {
-					foundUser = foundUsersPage1.find((foundUser) => {
-						return foundUser.email === createdUser.email;
-					});
-				} else {
+				foundUser = foundUsersPage1.find((foundUser) => {
+					return foundUser.email === createdUser.email;
+				});
+				if (!foundUser) {
 					foundUser = foundUsersPage2.find((foundUser) => {
 						return foundUser.email === createdUser.email;
 					});
 				}
 				if (!foundUser) {
-					throw new Error(`${createdUser.id} not created.`);
+					throw new Error(`User with ID ${createdUser.id} is not found.`);
 				}
 				expect(foundUser.id).toBeDefined();
 				expect(foundUser.firebaseId).toBeDefined();

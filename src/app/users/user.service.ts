@@ -1,10 +1,10 @@
 import { Injectable } from "@nestjs/common";
 import * as firebase from "firebase-admin";
-// import { serviceAccount } from "../../config/firebase";
+import { serviceAccount } from "../../config/firebase";
 import { User, UserAttributes } from "../../db/User";
 import { ResourceNotFoundError } from "../exceptions/ResourceNotFoundError";
 
-const firebaseApp = firebase.initializeApp("" as any);
+const firebaseApp = firebase.initializeApp(serviceAccount);
 const firebaseAuth = firebaseApp.auth();
 
 @Injectable()
@@ -25,13 +25,14 @@ export class UserService {
 		return newUser;
 	};
 
-	public getUserById = (userId: number) => {
+	public getUserById = async (userId: number) => {
 		try {
-			return User.findOneOrFail({
+			const foundUser = await User.findOneOrFail({
 				where: {
 					id: userId
 				}
 			});
+			return foundUser;
 		} catch (e) {
 			throw new ResourceNotFoundError();
 		}
@@ -42,8 +43,8 @@ export class UserService {
 			order: {
 				id: "ASC"
 			},
-			take: to - from,
-			skip: from
+			take: to - from + 1,
+			skip: from > 0 ? from - 1 : from
 		});
 	};
 
