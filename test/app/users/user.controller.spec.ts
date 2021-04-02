@@ -1,19 +1,45 @@
 import { Test, TestingModule } from "@nestjs/testing";
-import { MockFireBaseAuth } from "../../test-utils/mocks/FireBaseAdmin";
-import { ResourceNotFoundError } from "../../../src/app/exceptions/ResourceNotFoundError";
-import { DummyUser } from "../../test-utils/dummy-generator/DummyUser";
-import { MockDB } from "../../test-utils/mocks/DB";
+import { MockFireBase } from "@test-utils/mocks/FireBaseAdmin";
+import { DummyUser } from "@test-utils/dummy-generator/DummyUser";
+import { MockDB } from "@test-utils/mocks/DB";
+import { ResourceNotFoundError } from "@app/exceptions/ResourceNotFoundError";
 import {
 	UserController,
 	UserControllerGetResponse,
 	UserControllerPostResponse
-} from "../../../src/app/users/user.controller";
-import { UserService } from "../../../src/app/users/user.service";
+} from "@app/users/user.controller";
+import { UserService } from "@app/users/user.service";
+import { UserAssertions } from "@test-utils/assertions/UserAssertions";
+
+const insertOneUserToContoller = async (
+	userController: UserController,
+	dummyUser: DummyUser = DummyUser.createDummyData()
+) => {
+	return userController.createUser({
+		dateOfBirth: dummyUser.dateOfBirth,
+		email: dummyUser.email,
+		password: dummyUser.password,
+		role: dummyUser.role
+	});
+};
+
+const insertManyUsersToController = (
+	count: number,
+	userController: UserController,
+	dummyUser?: DummyUser
+) => {
+	const promises: Promise<UserControllerPostResponse>[] = [];
+	for (let i = 0; i < count; i++) {
+		const promise = insertOneUserToContoller(userController, dummyUser);
+		promises.push(promise);
+	}
+	return Promise.all(promises);
+};
 
 describe("UserController", () => {
 	let userController: UserController;
 	const mockDB = new MockDB();
-	const mockFirebase = MockFireBaseAuth.mock();
+	const mockFirebase = MockFireBase.mock();
 
 	beforeEach(async () => {
 		const app: TestingModule = await Test.createTestingModule({
@@ -28,38 +54,48 @@ describe("UserController", () => {
 	describe("Create user", () => {
 		it("Should return a user object.", async () => {
 			const dummyUser = DummyUser.createDummyData();
-			const response = await userController.createUser({
-				dateOfBirth: dummyUser.dateOfBirth,
-				email: dummyUser.email,
-				password: dummyUser.password
-			});
+			const response = await insertOneUserToContoller(
+				userController,
+				dummyUser
+			);
 
 			expect(
 				mockFirebase.hasCreatedUser(dummyUser.email, dummyUser.password)
 			).toBeTruthy();
-			expect(response.id).toBeDefined();
-			expect(response.firebaseId).toBeDefined();
-			expect((response as any).password).toBeUndefined();
-			expect(response.email).toEqual(dummyUser.email);
-			expect(response.dateOfBirth).toEqual(dummyUser.dateOfBirth);
+			UserAssertions.expectUserAttributesToNotHavePassword(response);
+			UserAssertions.expectUserToHaveFirebaseId(response);
+			UserAssertions.expectUserToHaveUniqueId(response);
+			UserAssertions.expectIsUserAttributesEqualTo(
+				{
+					email: dummyUser.email,
+					dateOfBirth: dummyUser.dateOfBirth,
+					role: dummyUser.role
+				},
+				response
+			);
 		});
 	});
 
 	describe("Get one", () => {
 		it("Should get the correct created user.", async () => {
 			const dummyUser = DummyUser.createDummyData();
-			const response = await userController.createUser({
-				dateOfBirth: dummyUser.dateOfBirth,
-				email: dummyUser.email,
-				password: dummyUser.password
-			});
+			const response = await insertOneUserToContoller(
+				userController,
+				dummyUser
+			);
 			const foundUser = await userController.getUser(response.id);
 
-			expect(foundUser.id).toBeDefined();
-			expect(foundUser.firebaseId).toBeDefined();
-			expect((foundUser as any).password).toBeUndefined();
-			expect(foundUser.email).toEqual(dummyUser.email);
-			expect(foundUser.dateOfBirth).toEqual(dummyUser.dateOfBirth);
+			UserAssertions.expectUserAttributesToNotHavePassword(foundUser);
+			UserAssertions.expectUserToHaveFirebaseId(foundUser);
+			UserAssertions.expectUserToHaveUniqueId(foundUser);
+			UserAssertions.expectIsUserAttributesEqualTo(
+				{
+					email: dummyUser.email,
+					dateOfBirth: dummyUser.dateOfBirth,
+					role: dummyUser.role
+				},
+				foundUser
+			);
 		});
 
 		it("It should throw an error on not found", async () => {
@@ -74,22 +110,11 @@ describe("UserController", () => {
 	});
 
 	describe("Get all", () => {
-		const insertManyUsers = (count: number) => {
-			const promises: Promise<UserControllerPostResponse>[] = [];
-			for (let i = 0; i < count; i++) {
-				const dummyUser = DummyUser.createDummyData();
-				const promise = userController.createUser({
-					dateOfBirth: dummyUser.dateOfBirth,
-					email: dummyUser.email,
-					password: dummyUser.password
-				});
-				promises.push(promise);
-			}
-			return Promise.all(promises);
-		};
-
 		it("Shoud read all created users", async () => {
-			const createdUsers = await insertManyUsers(100);
+			const createdUsers = await insertManyUsersToController(
+				100,
+				userController
+			);
 			const foundUsers = await userController.getUsers();
 
 			createdUsers.forEach((createdUser) => {
@@ -99,15 +124,24 @@ describe("UserController", () => {
 				if (!foundUser) {
 					throw new Error(`${createdUser.id} not created.`);
 				}
-				expect(foundUser.id).toBeDefined();
-				expect(foundUser.firebaseId).toBeDefined();
-				expect((foundUser as any).password).toBeUndefined();
-				expect(foundUser.email).toEqual(createdUser.email);
-				expect(foundUser.dateOfBirth).toEqual(createdUser.dateOfBirth);
+				UserAssertions.expectUserAttributesToNotHavePassword(foundUser);
+				UserAssertions.expectUserToHaveFirebaseId(foundUser);
+				UserAssertions.expectUserToHaveUniqueId(foundUser);
+				UserAssertions.expectIsUserAttributesEqualTo(
+					{
+						email: foundUser.email,
+						dateOfBirth: foundUser.dateOfBirth,
+						role: foundUser.role
+					},
+					createdUser
+				);
 			});
 		});
 		it("Should return a paginated set of users", async () => {
-			const createdUsers = await insertManyUsers(100);
+			const createdUsers = await insertManyUsersToController(
+				100,
+				userController
+			);
 			const foundUsersPage1 = await userController.getUsers(1, 50);
 			const foundUsersPage2 = await userController.getUsers(51, 100);
 			const foundUsersPage3 = await userController.getUsers(101, 200);
@@ -115,7 +149,7 @@ describe("UserController", () => {
 			expect(foundUsersPage1).toHaveLength(50);
 			expect(foundUsersPage2).toHaveLength(50);
 			expect(foundUsersPage3).toHaveLength(0);
-			createdUsers.forEach((createdUser, index) => {
+			createdUsers.forEach((createdUser) => {
 				let foundUser: UserControllerGetResponse | undefined;
 				foundUser = foundUsersPage1.find((foundUser) => {
 					return foundUser.email === createdUser.email;
@@ -128,23 +162,24 @@ describe("UserController", () => {
 				if (!foundUser) {
 					throw new Error(`User with ID ${createdUser.id} is not found.`);
 				}
-				expect(foundUser.id).toBeDefined();
-				expect(foundUser.firebaseId).toBeDefined();
-				expect((foundUser as any).password).toBeUndefined();
-				expect(foundUser.email).toEqual(createdUser.email);
-				expect(foundUser.dateOfBirth).toEqual(createdUser.dateOfBirth);
+				UserAssertions.expectUserAttributesToNotHavePassword(foundUser);
+				UserAssertions.expectUserToHaveFirebaseId(foundUser);
+				UserAssertions.expectUserToHaveUniqueId(foundUser);
+				UserAssertions.expectIsUserAttributesEqualTo(
+					{
+						email: foundUser.email,
+						dateOfBirth: foundUser.dateOfBirth,
+						role: foundUser.role
+					},
+					createdUser
+				);
 			});
 		});
 	});
 
 	describe("Deleting a user", () => {
 		it("Deletes the user in the DB and Firebase", async () => {
-			const dummyUser = DummyUser.createDummyData();
-			const response = await userController.createUser({
-				dateOfBirth: dummyUser.dateOfBirth,
-				email: dummyUser.email,
-				password: dummyUser.password
-			});
+			const response = await insertOneUserToContoller(userController);
 			await userController.deleteUser(response.id);
 
 			expect(mockFirebase.hasDeletedUser(response.firebaseId));

@@ -59,7 +59,8 @@ describe("User Model", () => {
 					User.create({
 						dateOfBirth: user.dateOfBirth,
 						email: user.email,
-						firebaseId: user.firebaseId
+						firebaseId: user.firebaseId,
+						role: user.role
 					}).save()
 				)
 			);

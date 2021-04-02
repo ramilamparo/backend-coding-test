@@ -1,4 +1,5 @@
 import { Injectable } from "@nestjs/common";
+import { UserRole } from "@type-utils*";
 import * as firebase from "firebase-admin";
 import { serviceAccount } from "../../config/firebase";
 import { User, UserAttributes } from "../../db/User";
@@ -12,13 +13,15 @@ export class UserService {
 	public createUser = async (
 		email: string,
 		password: string,
-		dateOfBirth: Date
+		dateOfBirth: Date,
+		role: UserRole
 	): Promise<UserAttributes> => {
 		const newFirebaseUser = await firebaseAuth.createUser({ email, password });
 		const newUser = User.create({
 			email: newFirebaseUser.email,
 			dateOfBirth,
-			firebaseId: newFirebaseUser.uid
+			firebaseId: newFirebaseUser.uid,
+			role
 		});
 		await newUser.save();
 

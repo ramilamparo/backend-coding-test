@@ -1,6 +1,7 @@
-import { DateUtils } from "../../../src/libs/DateUtils";
 import * as faker from "faker";
-import { UserControllerGetResponse } from "../../../src/app/users/user.controller";
+import { DateUtils } from "@libs/DateUtils";
+import { UserRole } from "@type-utils";
+import { UserControllerGetResponse } from "@app/users/user.controller";
 
 export interface DummyUserAttributes extends UserControllerGetResponse {
 	password: string;
@@ -11,6 +12,7 @@ export class DummyUser implements DummyUserAttributes {
 	public dateOfBirth: number;
 	public firebaseId: string;
 	public password: string;
+	public role: UserRole;
 	public id: number;
 
 	constructor(attributes: DummyUserAttributes) {
@@ -19,6 +21,7 @@ export class DummyUser implements DummyUserAttributes {
 		this.firebaseId = attributes.firebaseId;
 		this.password = attributes.password;
 		this.id = attributes.id;
+		this.role = attributes.role;
 	}
 
 	public static createDummyData = (
@@ -32,7 +35,12 @@ export class DummyUser implements DummyUserAttributes {
 			password: uniqueId,
 			email: email,
 			firebaseId: uniqueId,
+			role: DummyUser.getRandomRole(),
 			...attributes
 		});
+	};
+
+	private static getRandomRole = () => {
+		return faker.random.arrayElement<UserRole>(["admin", "standard"]);
 	};
 }

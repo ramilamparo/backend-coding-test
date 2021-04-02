@@ -1,5 +1,4 @@
 {
-	"extends": "./tsconfig.paths.json",
 	"compilerOptions": {
 		"lib": ["ESNext"],
 		"moduleResolution": "node",
@@ -18,7 +17,16 @@
 		"incremental": true,
 		"strict": true,
 		"resolveJsonModule": true,
-		"esModuleInterop": true
+		"esModuleInterop": true,
+		"paths": {
+			"@functions/*": ["src/functions/*"],
+			"@libs/*": ["src/libs/*"],
+			"@models/*": ["src/models/*"],
+			"@config/*": ["src/config/*"],
+			"@app/*": ["src/app/*"],
+			"@test-utils/*": ["test/test-utils/*"],
+			"@type-utils*": ["src/types"]
+		}
 	},
 	"exclude": [
 		"node_modules/**/*",

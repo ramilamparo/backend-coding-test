@@ -20,9 +20,9 @@ const firebaseApp = {
 	typeof firebaseAdmin
 >).initializeApp.mockReturnValue(firebaseApp as any);
 
-export class MockFireBaseAuth {
+export class MockFireBase {
 	public static mock = () => {
-		return new MockFireBaseAuth();
+		return new MockFireBase();
 	};
 	private firebaseAuthCreateUser: jest.Mock;
 	private firebaseAuthDeleteUser: jest.Mock;

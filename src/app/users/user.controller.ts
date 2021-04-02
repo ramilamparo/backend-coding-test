@@ -1,13 +1,13 @@
 import { Body, Controller, Get, Param, Post } from "@nestjs/common";
 import { DateUtils } from "../../libs/DateUtils";
 import { UserAttributes, UserCreateAttributes } from "src/db/User";
-import { DateTypesToUnix } from "../../types/utils";
+import { DateTypesToUnix } from "../../types";
 import { User } from "../../db/User";
 import { UserService } from "./user.service";
 
-export type UserControllerPostParams = Pick<
+export type UserControllerPostParams = Omit<
 	DateTypesToUnix<UserCreateAttributes>,
-	"email" | "dateOfBirth"
+	"firebaseId"
 > & { password: string };
 export type UserControllerPostResponse = DateTypesToUnix<
 	Omit<UserAttributes, "password">
@@ -25,14 +25,16 @@ export class UserController {
 		const user = await this.service.createUser(
 			newUser.email,
 			newUser.password,
-			DateUtils.unixToDate(newUser.dateOfBirth)
+			DateUtils.unixToDate(newUser.dateOfBirth),
+			newUser.role
 		);
 
 		return {
 			dateOfBirth: DateUtils.dateToUnix(user.dateOfBirth),
 			email: user.email,
 			firebaseId: user.firebaseId,
-			id: user.id
+			id: user.id,
+			role: user.role
 		};
 	}
 
@@ -77,7 +79,8 @@ export class UserController {
 			dateOfBirth: DateUtils.dateToUnix(user.dateOfBirth),
 			id: user.id,
 			email: user.email,
-			firebaseId: user.firebaseId
+			firebaseId: user.firebaseId,
+			role: user.role
 		};
 	};
 }
