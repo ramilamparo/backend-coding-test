@@ -1,4 +1,5 @@
 import * as faker from "faker";
+import { v4 as uuidv4 } from "uuid";
 import { DateUtils } from "@libs/DateUtils";
 import { UserRole } from "@type-utils";
 import { UserControllerGetResponse } from "@app/users/user.controller";
@@ -28,7 +29,7 @@ export class DummyUser implements DummyUserAttributes {
 		attributes?: Partial<DummyUserAttributes>
 	) => {
 		const email = faker.unique(faker.internet.email).toLowerCase();
-		const uniqueId = faker.unique(faker.git.commitSha);
+		const uniqueId = uuidv4();
 		return new DummyUser({
 			dateOfBirth: DateUtils.dateToUnix(new Date()),
 			id: DateUtils.dateToUnix(new Date()),

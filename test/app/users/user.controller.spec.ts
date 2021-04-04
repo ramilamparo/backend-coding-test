@@ -1,5 +1,5 @@
 import { Test, TestingModule } from "@nestjs/testing";
-import { MockFireBase } from "@test-utils/mocks/FireBaseAdmin";
+import { FirebaseAuthMock } from "@test-utils/mocks/FirebaseAuthMock";
 import { DummyUser } from "@test-utils/dummy-generator/DummyUser";
 import { MockDB } from "@test-utils/mocks/DB";
 import { ResourceNotFoundError } from "@app/exceptions/ResourceNotFoundError";
@@ -38,17 +38,23 @@ const insertManyUsersToController = (
 
 describe("UserController", () => {
 	let userController: UserController;
-	const mockDB = new MockDB();
-	const mockFirebase = MockFireBase.mock();
+	let mockDB: MockDB;
+
+	beforeAll(async () => {
+		mockDB = await MockDB.mock();
+	});
 
 	beforeEach(async () => {
 		const app: TestingModule = await Test.createTestingModule({
 			controllers: [UserController],
 			providers: [UserService]
 		}).compile();
-		await mockDB.reset();
-		mockFirebase.reset();
 		userController = app.get(UserController);
+	});
+
+	afterEach(async () => {
+		await mockDB.reset();
+		FirebaseAuthMock.resetMocks();
 	});
 
 	describe("Create user", () => {
@@ -60,7 +66,7 @@ describe("UserController", () => {
 			);
 
 			expect(
-				mockFirebase.hasCreatedUser(dummyUser.email, dummyUser.password)
+				FirebaseAuthMock.hasCreatedUser(dummyUser.email, dummyUser.password)
 			).toBeTruthy();
 			UserAssertions.expectUserAttributesToNotHavePassword(response);
 			UserAssertions.expectUserToHaveFirebaseId(response);
@@ -182,7 +188,7 @@ describe("UserController", () => {
 			const response = await insertOneUserToContoller(userController);
 			await userController.deleteUser(response.id);
 
-			expect(mockFirebase.hasDeletedUser(response.firebaseId));
+			expect(FirebaseAuthMock.hasDeletedUser(response.firebaseId));
 			try {
 				await userController.getUser(response.id);
 				throw new Error("User still exists!");

@@ -3,7 +3,12 @@ import { User } from "../../src/db/User";
 import { DummyUser } from "../test-utils/dummy-generator/DummyUser";
 
 describe("User Model", () => {
-	const mockConnection = new MockDB();
+	let mockConnection: MockDB;
+
+	beforeAll(async () => {
+		mockConnection = await MockDB.mock();
+	});
+
 	beforeEach(() => {
 		return mockConnection.reset();
 	});

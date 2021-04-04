@@ -1,12 +1,10 @@
+import { FirebaseFactory } from "@libs/firebase/FirebaseFactory";
 import { Injectable } from "@nestjs/common";
 import { UserRole } from "@type-utils*";
-import * as firebase from "firebase-admin";
-import { serviceAccount } from "../../config/firebase";
 import { User, UserAttributes } from "../../db/User";
 import { ResourceNotFoundError } from "../exceptions/ResourceNotFoundError";
 
-const firebaseApp = firebase.initializeApp(serviceAccount);
-const firebaseAuth = firebaseApp.auth();
+const firebaseAuth = FirebaseFactory.getFirebaseAuth();
 
 @Injectable()
 export class UserService {
@@ -16,7 +14,7 @@ export class UserService {
 		dateOfBirth: Date,
 		role: UserRole
 	): Promise<UserAttributes> => {
-		const newFirebaseUser = await firebaseAuth.createUser({ email, password });
+		const newFirebaseUser = await firebaseAuth.createUser(email, password);
 		const newUser = User.create({
 			email: newFirebaseUser.email,
 			dateOfBirth,
