@@ -25,6 +25,7 @@
 			"@config/*": ["src/config/*"],
 			"@app/*": ["src/app/*"],
 			"@test-utils/*": ["test/test-utils/*"],
+			"@db/*": ["src/db/*"],
 			"@type-utils*": ["src/types"]
 		}
 	},

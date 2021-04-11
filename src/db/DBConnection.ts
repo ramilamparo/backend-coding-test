@@ -1,9 +1,13 @@
 import { createConnection } from "typeorm";
 import { PostgresConnectionOptions } from "typeorm/driver/postgres/PostgresConnectionOptions";
+import { BlogPost } from "./BlogPost";
 import { User } from "./User";
 
 export abstract class DBConnection {
-	protected static entities: PostgresConnectionOptions["entities"] = [User];
+	protected static entities: PostgresConnectionOptions["entities"] = [
+		User,
+		BlogPost
+	];
 
 	public static initialize = () => {
 		return createConnection({

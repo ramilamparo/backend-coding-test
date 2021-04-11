@@ -1,7 +1,7 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { FirebaseAuthMock } from "@test-utils/mocks/FirebaseAuthMock";
 import { DummyUser } from "@test-utils/dummy-generator/DummyUser";
-import { MockDB } from "@test-utils/mocks/DB";
+import { MockDB } from "@test-utils/mocks/MockDB";
 import { ResourceNotFoundError } from "@app/exceptions/ResourceNotFoundError";
 import {
 	UserController,

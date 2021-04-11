@@ -29,6 +29,7 @@
 		"@nestjs/platform-express": "^7.6.15",
 		"date-fns": "^2.19.0",
 		"firebase-admin": "^9.5.0",
+		"lodash": "^4.17.21",
 		"pg": "^8.5.1",
 		"reflect-metadata": "^0.1.13",
 		"rimraf": "^3.0.2",

@@ -1,4 +1,4 @@
-import { MockDB } from "../test-utils/mocks/DB";
+import { MockDB } from "../test-utils/mocks/MockDB";
 import { User } from "../../src/db/User";
 import { DummyUser } from "../test-utils/dummy-generator/DummyUser";
 

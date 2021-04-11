@@ -1,3 +1,4 @@
+jest.config.js
 webpack.config.js
 package-lock.json
 package.json
