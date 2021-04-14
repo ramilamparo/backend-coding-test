@@ -7,8 +7,6 @@
 		"emitDecoratorMetadata": true,
 		"experimentalDecorators": true,
 		"allowSyntheticDefaultImports": true,
-		"noUnusedLocals": true,
-		"noUnusedParameters": true,
 		"removeComments": true,
 		"sourceMap": true,
 		"target": "ES2020",

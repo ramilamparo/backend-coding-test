@@ -1,4 +1,5 @@
 import { app, auth } from "firebase-admin";
+import { InvalidSessionError } from "@app/exceptions/InvalidSessionError";
 
 export interface FirebaseAuthUserAttributes {
 	email: string;
@@ -36,5 +37,19 @@ export class FirebaseAuth {
 
 	public deleteUser = async (firebaseId: string) => {
 		await this.auth.deleteUser(firebaseId);
+	};
+
+	public verifySessionCookie = async (cookie: string) => {
+		try {
+			const user = await this.auth.verifySessionCookie(cookie);
+			if (!user.email) {
+				throw new Error("User did not sign up with email.");
+			}
+			return {
+				email: user.email
+			};
+		} catch (e) {
+			throw new InvalidSessionError();
+		}
 	};
 }

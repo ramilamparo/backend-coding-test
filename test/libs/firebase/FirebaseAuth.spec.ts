@@ -48,4 +48,27 @@ describe("FirebaseAuth", () => {
 
 		expect(foundUser).toBeUndefined();
 	});
+
+	describe("Verification of session cookies", () => {
+		it("It verifies session.", async () => {
+			const EMAIL = "test@mail.com";
+			const COOKIE = "TESTTEST12345";
+
+			FirebaseAuthMock.mockVerifySessionCookieReturnValueOnce(
+				Promise.resolve({
+					email: EMAIL
+				})
+			);
+
+			const firebaseUser = await firebaseAuth.verifySessionCookie(COOKIE);
+
+			expect(FirebaseAuthMock.hasVerifiedCookie(COOKIE)).toBeTruthy();
+			expect(firebaseUser.email).toEqual(EMAIL);
+		});
+		it("Throws an error if user is not found or session is invalid.", async () => {
+			FirebaseAuthMock.mockVerifySessionCookieRejectOnce();
+
+			expect(firebaseAuth.verifySessionCookie("")).rejects.toBeDefined();
+		});
+	});
 });
