@@ -1,6 +1,22 @@
+import { v4 as uuidv4 } from "uuid";
 import { FirebaseAppMock } from "./FirebaseAppMock";
 
 export class FirebaseAuthMock extends FirebaseAppMock {
+	private static signInWithEmailAndPasswordMock = jest.fn<
+		any,
+		[string, string]
+	>(() =>
+		Promise.resolve({ user: { getIdToken: () => Promise.resolve(uuidv4()) } })
+	);
+
+	private static authMock = jest.fn(() => ({
+		signInWithEmailAndPassword: FirebaseAuthMock.signInWithEmailAndPasswordMock
+	}));
+
+	private static firebaseClientMock = jest.mock("firebase", () => ({
+		auth: FirebaseAuthMock.authMock
+	}));
+
 	public static resetMocks = () => {
 		FirebaseAppMock.authCreateUserMock.mockClear();
 		FirebaseAppMock.authDeleteUserMock.mockClear();
@@ -40,5 +56,21 @@ export class FirebaseAuthMock extends FirebaseAppMock {
 		FirebaseAppMock.authVerifySessionCookie.mockImplementationOnce(() => {
 			return Promise.reject();
 		});
+	};
+
+	public static hasSignedInWith = (email: string, password: string) => {
+		return FirebaseAuthMock.signInWithEmailAndPasswordMock.mock.calls.some(
+			(params) => {
+				const emailParam = params[0];
+				const passwordParam = params[1];
+				return emailParam === email && password === passwordParam;
+			}
+		);
+	};
+
+	public static mockInvalidSignInOnce = () => {
+		FirebaseAuthMock.signInWithEmailAndPasswordMock.mockRejectedValueOnce(
+			new Error()
+		);
 	};
 }

@@ -1,6 +1,7 @@
 import { FirebaseAuthMock } from "@test-utils/mocks/FirebaseAuthMock";
 import { DummyUser } from "@test-utils/dummy-generator/DummyUser";
 import { FirebaseFactory } from "@libs/firebase/FirebaseFactory";
+import { InvalidParametersError } from "@app/exceptions/InvalidParametersError";
 
 describe("FirebaseAuth", () => {
 	const firebaseAuth = FirebaseFactory.getFirebaseAuth();
@@ -49,7 +50,7 @@ describe("FirebaseAuth", () => {
 		expect(foundUser).toBeUndefined();
 	});
 
-	describe("Verification of session cookies", () => {
+	describe("Verification of session token", () => {
 		it("It verifies session.", async () => {
 			const EMAIL = "test@mail.com";
 			const COOKIE = "TESTTEST12345";
@@ -60,7 +61,7 @@ describe("FirebaseAuth", () => {
 				})
 			);
 
-			const firebaseUser = await firebaseAuth.verifySessionCookie(COOKIE);
+			const firebaseUser = await firebaseAuth.verifySessionToken(COOKIE);
 
 			expect(FirebaseAuthMock.hasVerifiedCookie(COOKIE)).toBeTruthy();
 			expect(firebaseUser.email).toEqual(EMAIL);
@@ -68,7 +69,28 @@ describe("FirebaseAuth", () => {
 		it("Throws an error if user is not found or session is invalid.", async () => {
 			FirebaseAuthMock.mockVerifySessionCookieRejectOnce();
 
-			expect(firebaseAuth.verifySessionCookie("")).rejects.toBeDefined();
+			expect(firebaseAuth.verifySessionToken("")).rejects.toBeDefined();
+		});
+	});
+
+	describe("Signing in with a session token.", () => {
+		it("It returns a token upon successful sign in.", async () => {
+			const EMAIL = "test@mail.com";
+			const PASSWORD = "TESTTEST12345";
+
+			const sessionToken = await firebaseAuth.signIn(EMAIL, PASSWORD);
+
+			expect(FirebaseAuthMock.hasSignedInWith(EMAIL, PASSWORD)).toBeTruthy();
+			expect(sessionToken).toBeDefined();
+		});
+		it("Throws an error if user is not found or session is invalid.", async () => {
+			FirebaseAuthMock.mockInvalidSignInOnce();
+			try {
+				await firebaseAuth.signIn("", "");
+				throw new Error("Sign in did not throw an error.");
+			} catch (e) {
+				expect(e).toBeInstanceOf(InvalidParametersError);
+			}
 		});
 	});
 });

@@ -16,7 +16,7 @@ export class ParseSessionMiddleware implements NestMiddleware {
 	async use(req: SessionRequest, res: Response, next: NextFunction) {
 		const sessionCookie = req.cookies.session || "";
 		try {
-			const firebaseUser = await FirebaseFactory.getFirebaseAuth().verifySessionCookie(
+			const firebaseUser = await FirebaseFactory.getFirebaseAuth().verifySessionToken(
 				sessionCookie
 			);
 			const user = await User.findOneOrFail({ email: firebaseUser.email });

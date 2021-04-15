@@ -1,5 +1,7 @@
 import { app, auth } from "firebase-admin";
+import firebase from "firebase";
 import { InvalidSessionError } from "@app/exceptions/InvalidSessionError";
+import { InvalidParametersError } from "@app/exceptions/InvalidParametersError";
 
 export interface FirebaseAuthUserAttributes {
 	email: string;
@@ -39,7 +41,7 @@ export class FirebaseAuth {
 		await this.auth.deleteUser(firebaseId);
 	};
 
-	public verifySessionCookie = async (cookie: string) => {
+	public verifySessionToken = async (cookie: string) => {
 		try {
 			const user = await this.auth.verifySessionCookie(cookie);
 			if (!user.email) {
@@ -51,5 +53,22 @@ export class FirebaseAuth {
 		} catch (e) {
 			throw new InvalidSessionError();
 		}
+	};
+
+	public signIn = async (email: string, password: string) => {
+		try {
+			const userCredential = await firebase
+				.auth()
+				.signInWithEmailAndPassword(email, password);
+
+			const sessionToken = await userCredential.user?.getIdToken(true);
+
+			if (sessionToken) {
+				return sessionToken;
+			}
+		} catch (e) {
+			throw new InvalidParametersError();
+		}
+		throw new Error("Cannot sign in user.");
 	};
 }
