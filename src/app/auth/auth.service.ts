@@ -1,13 +1,13 @@
+import { InvalidParametersError } from "@app/exceptions/InvalidParametersError";
 import { FirebaseFactory } from "@libs/firebase/FirebaseFactory";
 import { Injectable } from "@nestjs/common";
 import { UserRole } from "@type-utils*";
 import { User, UserAttributes } from "../../db/User";
-import { ResourceNotFoundError } from "../exceptions/ResourceNotFoundError";
 
 const firebaseAuth = FirebaseFactory.getFirebaseAuth();
 
 @Injectable()
-export class UserService {
+export class AuthService {
 	public createUser = async (
 		email: string,
 		password: string,
@@ -26,36 +26,31 @@ export class UserService {
 		return newUser;
 	};
 
-	public getUserById = async (userId: number) => {
+	public signIn = async (email: string, password: string) => {
+		const auth = FirebaseFactory.getFirebaseAuth();
+		const token = await auth.signIn(email, password);
+		const userData = await this.getUserByEmail(email);
+
+		return {
+			email,
+			dateOfBirth: userData.dateOfBirth,
+			role: userData.role,
+			id: userData.id,
+			firebaseId: userData.firebaseId,
+			token
+		};
+	};
+
+	private getUserByEmail = async (email: string) => {
 		try {
 			const foundUser = await User.findOneOrFail({
 				where: {
-					id: userId
+					email
 				}
 			});
 			return foundUser;
 		} catch (e) {
-			throw new ResourceNotFoundError();
+			throw new InvalidParametersError();
 		}
-	};
-
-	public getPaginatedUsers = (from: number, to: number) => {
-		return User.find({
-			order: {
-				id: "ASC"
-			},
-			take: to - from + 1,
-			skip: from > 0 ? from - 1 : from
-		});
-	};
-
-	public getAllUsers = () => {
-		return User.find();
-	};
-
-	public deleteUserById = async (id: number) => {
-		const foundUser = await this.getUserById(id);
-		await firebaseAuth.deleteUser(foundUser.firebaseId);
-		return User.delete({ id });
 	};
 }

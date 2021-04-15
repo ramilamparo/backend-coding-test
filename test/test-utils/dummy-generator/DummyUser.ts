@@ -2,9 +2,9 @@ import * as faker from "faker";
 import { v4 as uuidv4 } from "uuid";
 import { DateUtils } from "@libs/DateUtils";
 import { UserRole } from "@type-utils";
-import { UserControllerGetResponse } from "@app/users/user.controller";
+import { AuthControllerGetResponse } from "@app/auth/auth.controller";
 
-export interface DummyUserAttributes extends UserControllerGetResponse {
+export interface DummyUserAttributes extends AuthControllerGetResponse {
 	password: string;
 }
 
