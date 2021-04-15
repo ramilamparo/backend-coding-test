@@ -1,4 +1,8 @@
-import { Body, Controller, Post } from "@nestjs/common";
+import { Body, Controller, Post, Request, Response } from "@nestjs/common";
+import {
+	Response as ExpressResponse,
+	Request as ExpressRequest
+} from "express";
 import { DateUtils } from "../../libs/DateUtils";
 import { UserAttributes, UserCreateAttributes } from "src/db/User";
 import { DateTypesToUnix } from "../../types";
@@ -35,12 +39,16 @@ export class AuthController {
 
 	@Post("/signin")
 	public async signIn(
+		@Request() req: ExpressRequest,
+		@Response() res: ExpressResponse,
 		@Body() userCredentials: AuthControllerSignInParams
 	): Promise<AuthControllerGetResponse> {
 		const user = await this.service.signIn(
 			userCredentials.email,
 			userCredentials.password
 		);
+
+		res.cookie("session", user.token);
 
 		return this.mapUserModelToGetResponse(user);
 	}

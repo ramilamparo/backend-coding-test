@@ -2,11 +2,12 @@ import { v4 as uuidv4 } from "uuid";
 import { FirebaseAppMock } from "./FirebaseAppMock";
 
 export class FirebaseAuthMock extends FirebaseAppMock {
+	private static getIdTokenMock = jest.fn(() => Promise.resolve(uuidv4()));
 	private static signInWithEmailAndPasswordMock = jest.fn<
 		any,
 		[string, string]
 	>(() =>
-		Promise.resolve({ user: { getIdToken: () => Promise.resolve(uuidv4()) } })
+		Promise.resolve({ user: { getIdToken: FirebaseAuthMock.getIdTokenMock } })
 	);
 
 	private static authMock = jest.fn(() => ({
@@ -72,5 +73,9 @@ export class FirebaseAuthMock extends FirebaseAppMock {
 		FirebaseAuthMock.signInWithEmailAndPasswordMock.mockRejectedValueOnce(
 			new Error()
 		);
+	};
+
+	public static mockGetIdTokenResponseOnce = (token: string) => {
+		FirebaseAuthMock.getIdTokenMock.mockResolvedValueOnce(token);
 	};
 }

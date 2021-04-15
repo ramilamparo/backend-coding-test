@@ -65,14 +65,25 @@ describe("UserController", () => {
 	});
 
 	describe("Sign in", () => {
+		const req: any = {};
+		const res: any = { cookie: jest.fn() };
+
+		beforeEach(() => {
+			res.cookie.mockReset();
+		});
+
 		it("Should get the correct created user.", async () => {
+			const TOKEN = "testing";
+			FirebaseAuthMock.mockGetIdTokenResponseOnce(TOKEN);
+
 			const dummyUser = DummyUser.createDummyData();
 			await insertOneUserToContoller(userController, dummyUser);
-			const foundUser = await userController.signIn({
+
+			const foundUser = await userController.signIn(req, res, {
 				email: dummyUser.email,
 				password: dummyUser.password
 			});
-
+			expect(res.cookie).toBeCalledWith("session", TOKEN);
 			UserAssertions.expectUserAttributesToNotHavePassword(foundUser);
 			UserAssertions.expectUserToHaveFirebaseId(foundUser);
 			UserAssertions.expectUserToHaveUniqueId(foundUser);
@@ -89,7 +100,7 @@ describe("UserController", () => {
 		it("It should throw on invalid credentials.", async () => {
 			try {
 				FirebaseAuthMock.mockInvalidSignInOnce();
-				await userController.signIn({
+				await userController.signIn(req, res, {
 					email: "test@mail.com",
 					password: "12345"
 				});
