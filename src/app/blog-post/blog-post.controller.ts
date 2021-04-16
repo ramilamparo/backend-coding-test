@@ -11,6 +11,7 @@ import {
 	Param,
 	Patch,
 	Post,
+	Query,
 	Res
 } from "@nestjs/common";
 import { Response } from "express";
@@ -110,14 +111,17 @@ export class BlogPostController {
 	@Get()
 	public async getBlogPosts(
 		@Res({ passthrough: true }) res: Response,
-		from?: number,
-		to?: number
+		@Query("from") from?: number | string,
+		@Query("to") to?: number | string
 	): Promise<BlogPostControllerGetResponse> {
 		const response = new ResponseBuilder<BlogPostResponseObject[]>();
 		try {
 			let blogPosts: BlogPost[] = [];
 			if (from && to) {
-				blogPosts = await this.service.getPaginatedBlogPosts(from, to);
+				blogPosts = await this.service.getPaginatedBlogPosts(
+					Number(from),
+					Number(to)
+				);
 			} else {
 				blogPosts = await this.service.getAll();
 			}

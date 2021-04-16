@@ -12,6 +12,7 @@ export class RequireFirebaseSessionMiddleware implements NestMiddleware {
 				message: "You are not logged in.",
 				success: false
 			});
+			res.status(403);
 			return res.json(response.toObject());
 		}
 		next();

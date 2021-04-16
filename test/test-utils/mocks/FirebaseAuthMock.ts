@@ -43,9 +43,9 @@ export class FirebaseAuthMock extends FirebaseAppMock {
 		});
 	};
 
-	public static mockVerifySessionCookieReturnValueOnce = <T>(
-		returnedData: T
-	) => {
+	public static mockVerifySessionCookieReturnValueOnce = (returnedData: {
+		email: string;
+	}) => {
 		FirebaseAppMock.authVerifySessionCookie.mockReturnValueOnce(returnedData);
 	};
 

@@ -1,3 +1,4 @@
+import cookieParser from "cookie-parser";
 import { MiddlewareConsumer, Module, NestModule } from "@nestjs/common";
 import { ParseSessionMiddleware } from "./middlewares/ParseSessionMiddleware";
 import { AppController } from "./app.controller";
@@ -12,6 +13,7 @@ import { BlogPostModule } from "./blog-post/blog-post.module";
 })
 export class AppModule implements NestModule {
 	public configure = (consumer: MiddlewareConsumer) => {
-		consumer.apply(ParseSessionMiddleware);
+		consumer.apply(cookieParser()).forRoutes("*");
+		consumer.apply(ParseSessionMiddleware).forRoutes("*");
 	};
 }

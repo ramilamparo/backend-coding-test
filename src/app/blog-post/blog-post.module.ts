@@ -15,7 +15,9 @@ import { BlogPostService } from "./blog-post.service";
 })
 export class BlogPostModule implements NestModule {
 	configure = (consumer: MiddlewareConsumer) => {
-		consumer.apply(RequireFirebaseSessionMiddleware);
+		consumer
+			.apply(RequireFirebaseSessionMiddleware)
+			.forRoutes(BlogPostController);
 		consumer
 			.apply(RequireRoleMiddleware.use("admin"))
 			.forRoutes(
