@@ -39,7 +39,7 @@ const serverlessConfiguration: AWS = {
 			handler: "src/cron/blogpost.handler",
 			events: [
 				{
-					schedule: "cron(0 0 * * *)"
+					schedule: "cron(0 0 * * ? *)"
 				}
 			]
 		}
