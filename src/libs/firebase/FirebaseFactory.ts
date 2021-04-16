@@ -4,7 +4,9 @@ import { FirebaseAuth } from "./FirebaseAuth";
 import { FirebaseFirestore } from "./FirebaseFirestore";
 
 export class FirebaseFactory {
-	private static firebaseApp = firebase.initializeApp(serviceAccount);
+	private static firebaseApp = firebase.initializeApp({
+		credential: firebase.credential.cert(serviceAccount)
+	});
 
 	public static getFirebaseAuth = () => {
 		return FirebaseAuth.create(FirebaseFactory.firebaseApp);

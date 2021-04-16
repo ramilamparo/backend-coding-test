@@ -24,7 +24,7 @@
 			"@app/*": ["src/app/*"],
 			"@test-utils/*": ["test/test-utils/*"],
 			"@db/*": ["src/db/*"],
-			"@type-utils*": ["src/types"]
+			"@type-utils": ["src/types"]
 		}
 	},
 	"exclude": [

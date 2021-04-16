@@ -45,7 +45,7 @@ export class FirebaseAuth {
 
 	public verifySessionToken = async (cookie: string) => {
 		try {
-			const user = await this.auth.verifySessionCookie(cookie);
+			const user = await this.auth.verifyIdToken(cookie);
 			if (!user.email) {
 				throw new Error("User did not sign up with email.");
 			}

@@ -25,3 +25,6 @@ yarn-error.log*
 serviceAccountKey.json
 .env
 .aws
+.serverless
+.webpack
+dist

@@ -1,6 +1,5 @@
 import { Body, Controller, Post, Res } from "@nestjs/common";
 import { Response } from "express";
-import { DateUtils } from "../../libs/DateUtils";
 import { UserAttributes, UserCreateAttributes } from "src/db/User";
 import { DateTypesToUnix } from "../../types";
 import { AuthService } from "./auth.service";
@@ -10,9 +9,7 @@ import {
 	StatusCode
 } from "@libs/ResponseBuilder";
 
-export type AuthResponseObject = DateTypesToUnix<
-	Omit<UserAttributes, "password">
->;
+export type AuthResponseObject = Omit<UserAttributes, "password">;
 
 export type AuthControllerSignUpParams = Omit<
 	DateTypesToUnix<UserCreateAttributes>,
@@ -39,7 +36,7 @@ export class AuthController {
 			const user = await this.service.createUser(
 				newUser.email,
 				newUser.password,
-				DateUtils.unixToDate(newUser.dateOfBirth),
+				newUser.dateOfBirth,
 				newUser.role
 			);
 
@@ -86,7 +83,7 @@ export class AuthController {
 		user: UserAttributes
 	): AuthResponseObject => {
 		return {
-			dateOfBirth: DateUtils.dateToUnix(user.dateOfBirth),
+			dateOfBirth: user.dateOfBirth,
 			id: user.id,
 			email: user.email,
 			firebaseId: user.firebaseId,

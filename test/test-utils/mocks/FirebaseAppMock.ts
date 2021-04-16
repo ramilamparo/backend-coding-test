@@ -16,6 +16,8 @@ export class FirebaseAppMock {
 	protected static users: User[] = [];
 	protected static docs: Docs<object>[] = [];
 
+	protected static credentialCertMock = jest.fn();
+
 	protected static authCreateUserMock = jest.fn(
 		(user: firebase.auth.CreateRequest) => {
 			const newUser = {
@@ -134,7 +136,10 @@ export class FirebaseAppMock {
 		initializeApp: () => ({
 			auth: FirebaseAppMock.authMocks,
 			firestore: FirebaseAppMock.firestoreMocks
-		})
+		}),
+		credential: {
+			cert: FirebaseAppMock.credentialCertMock
+		}
 	}));
 
 	protected static getLastDocNameUsed = () => {

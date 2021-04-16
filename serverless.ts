@@ -29,9 +29,17 @@ const serverlessConfiguration: AWS = {
 			events: [
 				{
 					http: {
-						method: "post",
+						method: "ANY",
 						path: "/{any+}"
 					}
+				}
+			]
+		},
+		blogPostUpdater: {
+			handler: "src/cron/blogpost.handler",
+			events: [
+				{
+					schedule: "cron(0 0 * * *)"
 				}
 			]
 		}

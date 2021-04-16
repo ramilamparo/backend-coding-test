@@ -1,4 +1,4 @@
-import { fromUnixTime, getUnixTime } from "date-fns";
+import { fromUnixTime, getUnixTime, format } from "date-fns";
 
 export abstract class DateUtils {
 	public static unixToDate = (unix: number): Date => {
@@ -7,5 +7,9 @@ export abstract class DateUtils {
 
 	public static dateToUnix = (date: Date): number => {
 		return getUnixTime(date);
+	};
+
+	public static getBirthdayDateString = (date: Date) => {
+		return format(date, "yyyy-MM-dd");
 	};
 }

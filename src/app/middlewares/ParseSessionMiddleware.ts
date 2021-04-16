@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { User } from "@db/User";
 import { FirebaseFactory } from "@libs/firebase/FirebaseFactory";
 import { Injectable, NestMiddleware } from "@nestjs/common";
-import { UserRole } from "@type-utils*";
+import { UserRole } from "@type-utils";
 
 export interface SessionRequest extends Request {
 	user: {
@@ -16,7 +16,6 @@ export class ParseSessionMiddleware implements NestMiddleware {
 	async use(req: SessionRequest, res: Response, next: NextFunction) {
 		const sessionCookie = req.cookies.session || "";
 		try {
-			// console.log(req.method, req.originalUrl, sessionCookie);
 			const firebaseUser = await FirebaseFactory.getFirebaseAuth().verifySessionToken(
 				sessionCookie
 			);

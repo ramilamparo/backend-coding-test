@@ -6,6 +6,7 @@ import { NestFactory } from "@nestjs/core";
 import { ExpressAdapter } from "@nestjs/platform-express";
 import { AppModule } from "./app/app.module";
 import express from "express";
+import { DBConnection } from "@db/DBConnection";
 
 // NOTE: If you get ERR_CONTENT_DECODING_FAILED in your browser, this
 // is likely due to a compressed response (e.g. gzip) which has not
@@ -17,6 +18,7 @@ let cachedServer: Server;
 
 // Create the Nest.js server and convert it into an Express.js server
 async function bootstrapServer(): Promise<Server> {
+	await DBConnection.initialize();
 	if (!cachedServer) {
 		const expressApp = express();
 		const nestApp = await NestFactory.create(

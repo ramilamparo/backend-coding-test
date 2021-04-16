@@ -3,7 +3,7 @@ import { Entity, PrimaryGeneratedColumn, Column, BaseEntity } from "typeorm";
 
 export interface UserCreateAttributes {
 	email: string;
-	dateOfBirth: Date;
+	dateOfBirth: string;
 	firebaseId: string;
 	role: UserRole;
 }
@@ -22,6 +22,6 @@ export class User extends BaseEntity implements UserAttributes {
 	public email!: string;
 	@Column({ type: "varchar", length: 16, nullable: false })
 	public role!: UserRole;
-	@Column({ type: "datetime", nullable: false })
-	public dateOfBirth!: Date;
+	@Column({ type: "varchar", length: 10, nullable: false })
+	public dateOfBirth!: string;
 }

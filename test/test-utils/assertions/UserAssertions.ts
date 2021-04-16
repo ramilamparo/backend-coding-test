@@ -1,4 +1,4 @@
-import { DateTypesToUnix } from "@type-utils*";
+import { DateTypesToUnix } from "@type-utils";
 import { UserAttributes } from "src/db/User";
 
 export abstract class UserAssertions {

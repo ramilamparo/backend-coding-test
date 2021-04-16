@@ -267,7 +267,7 @@ const expectAuthResponseToContainUserData = (
 	responseBody: any,
 	email: string,
 	role: UserRole,
-	birthday: number
+	birthday: string
 ) => {
 	expect(responseBody.data.email).toEqual(email);
 	expect(responseBody.data.role).toEqual(role);

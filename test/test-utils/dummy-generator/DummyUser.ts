@@ -10,7 +10,7 @@ export interface DummyUserAttributes extends AuthResponseObject {
 
 export class DummyUser implements DummyUserAttributes {
 	public email: string;
-	public dateOfBirth: number;
+	public dateOfBirth: string;
 	public firebaseId: string;
 	public password: string;
 	public role: UserRole;
@@ -31,7 +31,7 @@ export class DummyUser implements DummyUserAttributes {
 		const email = faker.unique(faker.internet.email).toLowerCase();
 		const uniqueId = uuidv4();
 		return new DummyUser({
-			dateOfBirth: DateUtils.dateToUnix(new Date()),
+			dateOfBirth: "1997-01-30",
 			id: DateUtils.dateToUnix(new Date()),
 			password: uniqueId,
 			email: email,

@@ -1,7 +1,7 @@
 import { InvalidParametersError } from "@app/exceptions/InvalidParametersError";
 import { FirebaseFactory } from "@libs/firebase/FirebaseFactory";
 import { Injectable } from "@nestjs/common";
-import { UserRole } from "@type-utils*";
+import { UserRole } from "@type-utils";
 import { User, UserAttributes } from "../../db/User";
 
 const firebaseAuth = FirebaseFactory.getFirebaseAuth();
@@ -11,7 +11,7 @@ export class AuthService {
 	public createUser = async (
 		email: string,
 		password: string,
-		dateOfBirth: Date,
+		dateOfBirth: string,
 		role: UserRole
 	): Promise<UserAttributes> => {
 		const newFirebaseUser = await firebaseAuth.createUser(email, password);

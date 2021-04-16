@@ -19,7 +19,9 @@ export abstract class DBConnection {
 			host: database.host,
 			username: database.username,
 			password: database.password,
-			port: Number(database.port)
+			port: Number(database.port),
+			logger: "simple-console",
+			synchronize: true
 		});
 	};
 }
