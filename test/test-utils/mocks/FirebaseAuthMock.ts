@@ -14,8 +14,12 @@ export class FirebaseAuthMock extends FirebaseAppMock {
 		signInWithEmailAndPassword: FirebaseAuthMock.signInWithEmailAndPasswordMock
 	}));
 
-	private static firebaseClientMock = jest.mock("firebase", () => ({
+	private static firebaseClientAppMock = jest.fn(() => ({
 		auth: FirebaseAuthMock.authMock
+	}));
+
+	private static firebaseClientMock = jest.mock("firebase", () => ({
+		initializeApp: FirebaseAuthMock.firebaseClientAppMock
 	}));
 
 	public static resetMocks = () => {

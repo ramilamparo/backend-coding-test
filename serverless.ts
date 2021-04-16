@@ -1,9 +1,8 @@
 import type { AWS } from "@serverless/typescript";
 
-import hello from "@functions/hello";
-
 const serverlessConfiguration: AWS = {
 	service: "backend-coding-test",
+	useDotenv: true,
 	frameworkVersion: "2",
 	custom: {
 		webpack: {
@@ -11,7 +10,7 @@ const serverlessConfiguration: AWS = {
 			includeModules: true
 		}
 	},
-	plugins: ["serverless-webpack"],
+	plugins: ["serverless-webpack", "serverless-offline"],
 	provider: {
 		name: "aws",
 		runtime: "nodejs14.x",
@@ -24,8 +23,19 @@ const serverlessConfiguration: AWS = {
 		},
 		lambdaHashingVersion: "20201221"
 	},
-	// import the function via paths
-	functions: { hello }
+	functions: {
+		main: {
+			handler: "src/lambda.handler",
+			events: [
+				{
+					http: {
+						method: "post",
+						path: "/{any+}"
+					}
+				}
+			]
+		}
+	}
 };
 
 module.exports = serverlessConfiguration;

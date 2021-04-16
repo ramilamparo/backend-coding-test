@@ -2,6 +2,7 @@ import { app, auth } from "firebase-admin";
 import firebase from "firebase";
 import { InvalidSessionError } from "@app/exceptions/InvalidSessionError";
 import { InvalidParametersError } from "@app/exceptions/InvalidParametersError";
+import { client } from "@config/firebase";
 
 export interface FirebaseAuthUserAttributes {
 	email: string;
@@ -10,6 +11,7 @@ export interface FirebaseAuthUserAttributes {
 
 export class FirebaseAuth {
 	private constructor(private auth: auth.Auth) {}
+	private static firebase = firebase.initializeApp(client);
 
 	public static create = (app: app.App) => {
 		return new FirebaseAuth(app.auth());
@@ -57,7 +59,7 @@ export class FirebaseAuth {
 
 	public signIn = async (email: string, password: string) => {
 		try {
-			const userCredential = await firebase
+			const userCredential = await FirebaseAuth.firebase
 				.auth()
 				.signInWithEmailAndPassword(email, password);
 

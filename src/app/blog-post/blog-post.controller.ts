@@ -11,9 +11,9 @@ import {
 	Param,
 	Patch,
 	Post,
-	Response
+	Res
 } from "@nestjs/common";
-import { Response as ExpressResponse } from "express";
+import { Response } from "express";
 import { BlogPost, BlogPostAttributes } from "src/db/BlogPost";
 import { BlogPostService } from "./blog-post.service";
 
@@ -35,7 +35,7 @@ export class BlogPostController {
 
 	@Post()
 	public async createBlogPost(
-		@Response() res: ExpressResponse,
+		@Res({ passthrough: true }) res: Response,
 		@Body() newBlogPost: BlogPostControllerPostParams
 	) {
 		const response = new ResponseBuilder<BlogPostResponseObject>();
@@ -57,7 +57,7 @@ export class BlogPostController {
 
 	@Patch("/:id")
 	public async updateBlogPost(
-		@Response() res: ExpressResponse,
+		@Res({ passthrough: true }) res: Response,
 		@Param("id") blogPostId: string | number,
 		@Body() blogPost: BlogPostControllerPostParams
 	) {
@@ -82,7 +82,7 @@ export class BlogPostController {
 
 	@Get("/:id")
 	public async getBlogPost(
-		@Response() res: ExpressResponse,
+		@Res({ passthrough: true }) res: Response,
 		@Param("id") blogPostId: string | number
 	) {
 		const response = new ResponseBuilder<BlogPostResponseObject>();
@@ -101,17 +101,15 @@ export class BlogPostController {
 		return response.toObject();
 	}
 
+	public getBlogPosts(res: Response): Promise<BlogPostControllerGetResponse>;
 	public getBlogPosts(
-		res: ExpressResponse
-	): Promise<BlogPostControllerGetResponse>;
-	public getBlogPosts(
-		res: ExpressResponse,
+		res: Response,
 		from: number,
 		to: number
 	): Promise<BlogPostControllerGetResponse>;
 	@Get()
 	public async getBlogPosts(
-		@Response() res: ExpressResponse,
+		@Res({ passthrough: true }) res: Response,
 		from?: number,
 		to?: number
 	): Promise<BlogPostControllerGetResponse> {
@@ -139,7 +137,7 @@ export class BlogPostController {
 
 	@Delete("/:id")
 	public async deleteBlogPost(
-		@Response() res: ExpressResponse,
+		@Res({ passthrough: true }) res: Response,
 		@Param("id") id: string | number
 	) {
 		const response = new ResponseBuilder<null>();

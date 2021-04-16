@@ -1,8 +1,17 @@
 import { ServiceAccount } from "firebase-admin";
-import serviceAccountKeyJson from "../../serviceAccountKey.json";
 
 export const serviceAccount: ServiceAccount = {
-	clientEmail: serviceAccountKeyJson.client_email,
-	privateKey: serviceAccountKeyJson.private_key,
-	projectId: serviceAccountKeyJson.project_id
+	clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+	privateKey: process.env.FIREBASE_PRIVATE_KEY,
+	projectId: process.env.FIREBASE_PROJECT_ID
+};
+
+export const client = {
+	apiKey: "AIzaSyCNIRjeB5qCnfRE4Zc3n79hP7hq1tw2vx0",
+	authDomain: "backend-coding-test.firebaseapp.com",
+	projectId: "backend-coding-test",
+	storageBucket: "backend-coding-test.appspot.com",
+	messagingSenderId: "514918828737",
+	appId: "1:514918828737:web:42dfc4203ba430bdb7a240",
+	measurementId: "G-M0F8WHTSDK"
 };

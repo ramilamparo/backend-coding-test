@@ -1,5 +1,5 @@
-import { Body, Controller, Post, Response } from "@nestjs/common";
-import { Response as ExpressResponse } from "express";
+import { Body, Controller, Post, Res } from "@nestjs/common";
+import { Response } from "express";
 import { DateUtils } from "../../libs/DateUtils";
 import { UserAttributes, UserCreateAttributes } from "src/db/User";
 import { DateTypesToUnix } from "../../types";
@@ -31,7 +31,7 @@ export class AuthController {
 
 	@Post("/signup")
 	public async signUp(
-		@Response() res: ExpressResponse,
+		@Res({ passthrough: true }) res: Response,
 		@Body() newUser: AuthControllerSignUpParams
 	): Promise<AuthControllerPostResponse> {
 		const response = new ResponseBuilder<AuthResponseObject>();
@@ -56,7 +56,7 @@ export class AuthController {
 
 	@Post("/signin")
 	public async signIn(
-		@Response() res: ExpressResponse,
+		@Res({ passthrough: true }) res: Response,
 		@Body() userCredentials: AuthControllerSignInParams
 	): Promise<AuthControllerGetResponse> {
 		const response = new ResponseBuilder<AuthResponseObject>();
