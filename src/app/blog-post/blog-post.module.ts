@@ -13,7 +13,7 @@ import { BlogPostService } from "./blog-post.service";
 	controllers: [BlogPostController],
 	providers: [BlogPostService]
 })
-export class AuthModule implements NestModule {
+export class BlogPostModule implements NestModule {
 	configure = (consumer: MiddlewareConsumer) => {
 		consumer.apply(RequireFirebaseSessionMiddleware);
 		consumer

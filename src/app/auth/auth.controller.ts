@@ -1,61 +1,87 @@
-import { Body, Controller, Post, Request, Response } from "@nestjs/common";
-import {
-	Response as ExpressResponse,
-	Request as ExpressRequest
-} from "express";
+import { Body, Controller, Post, Response } from "@nestjs/common";
+import { Response as ExpressResponse } from "express";
 import { DateUtils } from "../../libs/DateUtils";
 import { UserAttributes, UserCreateAttributes } from "src/db/User";
 import { DateTypesToUnix } from "../../types";
 import { AuthService } from "./auth.service";
+import {
+	ResponseBuilder,
+	ServerResponse,
+	StatusCode
+} from "@libs/ResponseBuilder";
+
+export type AuthResponseObject = DateTypesToUnix<
+	Omit<UserAttributes, "password">
+>;
 
 export type AuthControllerSignUpParams = Omit<
 	DateTypesToUnix<UserCreateAttributes>,
 	"firebaseId"
 > & { password: string };
-export type AuthControllerPostResponse = DateTypesToUnix<
-	Omit<UserAttributes, "password">
->;
-export type AuthControllerGetResponse = DateTypesToUnix<UserAttributes>;
+
+export type AuthControllerPostResponse = ServerResponse<AuthResponseObject | null>;
+
+export type AuthControllerGetResponse = ServerResponse<AuthResponseObject | null>;
 
 export type AuthControllerSignInParams = { email: string; password: string };
 
-@Controller("auth")
+@Controller("/auth")
 export class AuthController {
 	constructor(public service: AuthService) {}
 
 	@Post("/signup")
-	public async createUser(
+	public async signUp(
+		@Response() res: ExpressResponse,
 		@Body() newUser: AuthControllerSignUpParams
 	): Promise<AuthControllerPostResponse> {
-		const user = await this.service.createUser(
-			newUser.email,
-			newUser.password,
-			DateUtils.unixToDate(newUser.dateOfBirth),
-			newUser.role
-		);
+		const response = new ResponseBuilder<AuthResponseObject>();
+		try {
+			const user = await this.service.createUser(
+				newUser.email,
+				newUser.password,
+				DateUtils.unixToDate(newUser.dateOfBirth),
+				newUser.role
+			);
 
-		return this.mapUserModelToGetResponse(user);
+			const userData = this.mapUserModelToAuthObjectResponse(user);
+			response.setData(userData);
+			response.setSuccess(true);
+			response.setCode(StatusCode.SUCCESS);
+			response.setMessage("Successfully signed up.");
+		} catch (e) {
+			response.handleExpressError(e, res);
+		}
+		return response.toObject();
 	}
 
 	@Post("/signin")
 	public async signIn(
-		@Request() req: ExpressRequest,
 		@Response() res: ExpressResponse,
 		@Body() userCredentials: AuthControllerSignInParams
 	): Promise<AuthControllerGetResponse> {
-		const user = await this.service.signIn(
-			userCredentials.email,
-			userCredentials.password
-		);
+		const response = new ResponseBuilder<AuthResponseObject>();
+		try {
+			const user = await this.service.signIn(
+				userCredentials.email,
+				userCredentials.password
+			);
 
-		res.cookie("session", user.token);
+			res.cookie("session", user.token);
 
-		return this.mapUserModelToGetResponse(user);
+			const userData = this.mapUserModelToAuthObjectResponse(user);
+			response.setData(userData);
+			response.setSuccess(true);
+			response.setCode(StatusCode.SUCCESS);
+			response.setMessage("Successfully signed in.");
+		} catch (e) {
+			response.handleExpressError(e, res);
+		}
+		return response.toObject();
 	}
 
-	private mapUserModelToGetResponse = (
+	private mapUserModelToAuthObjectResponse = (
 		user: UserAttributes
-	): AuthControllerGetResponse => {
+	): AuthResponseObject => {
 		return {
 			dateOfBirth: DateUtils.dateToUnix(user.dateOfBirth),
 			id: user.id,

@@ -1,18 +1,20 @@
 import { FirebaseFirestoreMock } from "@test-utils/mocks/FirebaseFirestoreMock";
 import {
 	BlogPostController,
-	BlogPostControllerPostResponse,
-	BlogPostControllerGetResponse
+	BlogPostResponseObject
 } from "@app/blog-post/blog-post.controller";
 import { BlogPostService } from "@app/blog-post/blog-post.service";
 import { ResourceNotFoundError } from "@app/exceptions/ResourceNotFoundError";
 import { Test, TestingModule } from "@nestjs/testing";
 import { DummyBlogPost } from "@test-utils/dummy-generator/DummyPost";
 import { MockDB } from "@test-utils/mocks/MockDB";
+import { ExpressResponseMock } from "@test-utils/mocks/ExpressResponseMock";
+import { ServerResponse, StatusCode } from "@libs/ResponseBuilder";
 
 describe("Blog Post Controller", () => {
 	let blogPostController: BlogPostController;
 	let mockDB: MockDB;
+	const res = new ExpressResponseMock();
 
 	beforeAll(async () => {
 		mockDB = await MockDB.mock();
@@ -36,9 +38,13 @@ describe("Blog Post Controller", () => {
 				dummyPost
 			);
 
-			expect(blogPost.title).toEqual(dummyPost.title);
-			expect(blogPost.id).toBeDefined();
-			expect(blogPost.docId).toBeDefined();
+			if (!blogPost.data) {
+				throw new Error("Blog post did not return data.");
+			}
+
+			expect(blogPost.data.title).toEqual(dummyPost.title);
+			expect(blogPost.data.id).toBeDefined();
+			expect(blogPost.data.docId).toBeDefined();
 			expect(
 				FirebaseFirestoreMock.hasCalledCollectionDocCreateWith({
 					title: dummyPost.title
@@ -50,20 +56,26 @@ describe("Blog Post Controller", () => {
 	describe("Reading blog post", () => {
 		describe("Getting one blog post.", () => {
 			it("Should get one", async () => {
-				const blogPost = await insertOneBlogPostToController(
+				const { data: blogPost } = await insertOneBlogPostToController(
 					blogPostController
 				);
-				const foundBlogPost = await blogPostController.getBlogPost(blogPost.id);
+				const { data: foundBlogPost } = await blogPostController.getBlogPost(
+					res.castToExpressResponse(),
+					blogPost.id
+				);
+				if (!foundBlogPost) {
+					throw new Error("Blog post get has no response.");
+				}
 
 				expect(foundBlogPost.title).toEqual(blogPost.title);
 			});
 			it("Should throw an error on a missing blog post.", async () => {
-				try {
-					await blogPostController.getBlogPost(999);
-					throw new Error("Blog post did not throw an error!");
-				} catch (e) {
-					expect(e).toBeInstanceOf(ResourceNotFoundError);
-				}
+				const response = await blogPostController.getBlogPost(
+					res.castToExpressResponse(),
+					999
+				);
+				expect(response.data).toBeNull();
+				expect(response.code).toEqual(StatusCode.RESOURCE_NOT_FOUND);
 			});
 		});
 
@@ -73,16 +85,22 @@ describe("Blog Post Controller", () => {
 					blogPostController,
 					200
 				);
-				const foundBlogPosts = await blogPostController.getBlogPosts();
+				const foundBlogPosts = await blogPostController.getBlogPosts(
+					res.castToExpressResponse()
+				);
 
 				createdBlogPosts.forEach((createdBlogPost) => {
-					const foundBlogPost = foundBlogPosts.find((blogPost) => {
-						return blogPost.id === createdBlogPost.id;
+					if (!foundBlogPosts.data) {
+						throw new Error("Blog post did not return data.");
+					}
+
+					const foundBlogPost = foundBlogPosts.data.find((blogPost) => {
+						return blogPost.id === createdBlogPost.data.id;
 					});
 					if (!foundBlogPost) {
-						throw new Error(`${createdBlogPost.id} not created.`);
+						throw new Error(`${createdBlogPost.data.id} not created.`);
 					}
-					expect(createdBlogPost.title).toEqual(foundBlogPost.title);
+					expect(createdBlogPost.data.title).toEqual(foundBlogPost.title);
 				});
 			});
 			it("Should return a paginated set of blog posts.", async () => {
@@ -90,28 +108,49 @@ describe("Blog Post Controller", () => {
 					blogPostController,
 					100
 				);
-				const blogPostsPage1 = await blogPostController.getBlogPosts(1, 50);
-				const blogPostsPage2 = await blogPostController.getBlogPosts(51, 100);
-				const blogPostsPage3 = await blogPostController.getBlogPosts(101, 200);
+				const blogPostsPage1 = await blogPostController.getBlogPosts(
+					res.castToExpressResponse(),
+					1,
+					50
+				);
+				const blogPostsPage2 = await blogPostController.getBlogPosts(
+					res.castToExpressResponse(),
+					51,
+					100
+				);
+				const blogPostsPage3 = await blogPostController.getBlogPosts(
+					res.castToExpressResponse(),
+					101,
+					200
+				);
 
-				expect(blogPostsPage1).toHaveLength(50);
-				expect(blogPostsPage2).toHaveLength(50);
-				expect(blogPostsPage3).toHaveLength(0);
+				expect(blogPostsPage1.data).toHaveLength(50);
+				expect(blogPostsPage2.data).toHaveLength(50);
+				expect(blogPostsPage3.data).toHaveLength(0);
 
 				createdUsers.forEach((createBlogPost) => {
-					let foundBlogPost: BlogPostControllerGetResponse | undefined;
-					foundBlogPost = blogPostsPage1.find((blogPost) => {
-						return blogPost.title === createBlogPost.title;
+					let foundBlogPost: BlogPostResponseObject | undefined;
+					if (!blogPostsPage1.data) {
+						throw new Error("Blog post page 1 did not return data.");
+					}
+					if (!blogPostsPage2.data) {
+						throw new Error("Blog post page 2 did not return data.");
+					}
+
+					foundBlogPost = blogPostsPage1.data.find((blogPost) => {
+						return blogPost.title === createBlogPost.data.title;
 					});
 					if (!foundBlogPost) {
-						foundBlogPost = blogPostsPage2.find((blogPost) => {
-							return blogPost.title === createBlogPost.title;
+						foundBlogPost = blogPostsPage2.data.find((blogPost) => {
+							return blogPost.title === createBlogPost.data.title;
 						});
 					}
 					if (!foundBlogPost) {
-						throw new Error(`User with ID ${createBlogPost.id} is not found.`);
+						throw new Error(
+							`User with ID ${createBlogPost.data.id} is not found.`
+						);
 					}
-					expect(createBlogPost.title).toEqual(foundBlogPost.title);
+					expect(createBlogPost.data.title).toEqual(foundBlogPost.title);
 				});
 			});
 		});
@@ -123,15 +162,23 @@ describe("Blog Post Controller", () => {
 			const createdPost = await insertOneBlogPostToController(
 				blogPostController
 			);
-			const updatedPost = await blogPostController.updateBlogPost(
-				createdPost.id,
+			const { data: updatedPost } = await blogPostController.updateBlogPost(
+				res.castToExpressResponse(),
+				createdPost.data.id,
 				{
 					title: UPDATED_TITLE
 				}
 			);
-			const foundBlogPost = await blogPostController.getBlogPost(
-				createdPost.id
+			const { data: foundBlogPost } = await blogPostController.getBlogPost(
+				res.castToExpressResponse(),
+				createdPost.data.id
 			);
+			if (!updatedPost) {
+				throw new Error("Update blog post did not return a response.");
+			}
+			if (!foundBlogPost) {
+				throw new Error("Cannot find blog post.");
+			}
 
 			expect(foundBlogPost.title).toEqual(UPDATED_TITLE);
 			expect(updatedPost.title).toEqual(UPDATED_TITLE);
@@ -145,34 +192,51 @@ describe("Blog Post Controller", () => {
 
 	describe("Deleting blog post", () => {
 		it("Should delete the post on the DB and Firebase", async () => {
-			const response = await insertOneBlogPostToController(blogPostController);
-			await blogPostController.deleteBlogPost(response.id);
+			const deleteResponse = await insertOneBlogPostToController(
+				blogPostController
+			);
+			await blogPostController.deleteBlogPost(
+				res.castToExpressResponse(),
+				deleteResponse.data.id
+			);
 
 			expect(
-				FirebaseFirestoreMock.hasDeletedDocument("blog-post", response.docId)
+				FirebaseFirestoreMock.hasDeletedDocument(
+					"blog-post",
+					deleteResponse.data.docId
+				)
 			);
-			try {
-				await blogPostController.getBlogPost(response.id);
-				throw new Error("Blog post still still exists!");
-			} catch (e) {
-				expect(e).toBeInstanceOf(ResourceNotFoundError);
-			}
+			const getReponse = await blogPostController.getBlogPost(
+				res.castToExpressResponse(),
+				deleteResponse.data.id
+			);
+			expect(getReponse.code).toEqual(StatusCode.RESOURCE_NOT_FOUND);
 		});
 	});
 });
 
-const insertOneBlogPostToController = (
+const insertOneBlogPostToController = async (
 	controller: BlogPostController,
 	blogPost: DummyBlogPost = DummyBlogPost.createDummyData()
-) => {
-	return controller.createBlogPost(blogPost);
+): Promise<ServerResponse<BlogPostResponseObject>> => {
+	const { data, ...meta } = await controller.createBlogPost(
+		new ExpressResponseMock().castToExpressResponse(),
+		blogPost
+	);
+	if (!data) {
+		throw new Error("Cannot create blog post.");
+	}
+	return {
+		data,
+		...meta
+	};
 };
 
 const insertManyBlogPostToController = (
 	controller: BlogPostController,
 	count: number
 ) => {
-	const promises: Promise<BlogPostControllerPostResponse>[] = [];
+	const promises: Promise<ServerResponse<BlogPostResponseObject>>[] = [];
 
 	for (let i = 0; i < count; i++) {
 		promises.push(insertOneBlogPostToController(controller));

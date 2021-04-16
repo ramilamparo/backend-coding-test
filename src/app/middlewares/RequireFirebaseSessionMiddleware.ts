@@ -1,4 +1,4 @@
-import { InvalidSessionError } from "@app/exceptions/InvalidSessionError";
+import { ResponseBuilder, StatusCode } from "@libs/ResponseBuilder";
 import { Injectable, NestMiddleware } from "@nestjs/common";
 import { Response, NextFunction } from "express";
 import { SessionRequest } from "./ParseSessionMiddleware";
@@ -7,7 +7,12 @@ import { SessionRequest } from "./ParseSessionMiddleware";
 export class RequireFirebaseSessionMiddleware implements NestMiddleware {
 	use(req: SessionRequest, res: Response, next: NextFunction) {
 		if (!req.user) {
-			throw new InvalidSessionError();
+			const response = new ResponseBuilder(null, {
+				code: StatusCode.INVALID_SESSION,
+				message: "You are not logged in.",
+				success: false
+			});
+			return res.json(response.toObject());
 		}
 		next();
 	}
