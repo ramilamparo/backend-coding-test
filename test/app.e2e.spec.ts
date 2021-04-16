@@ -38,38 +38,45 @@ describe("AppController (e2e)", () => {
 		const BIRTHDAY = Math.floor(new Date().valueOf() / 1000);
 		describe("/auth/signup (POST)", () => {
 			it("Returns user data on response.", async () => {
+				const response = await request(app.getHttpServer())
+					.post("/auth/signup")
+					.send({
+						email: EMAIL,
+						password: PASSWORD,
+						role: ROLE,
+						dateOfBirth: BIRTHDAY
+					});
+				expect(response.status).toEqual(201);
+				expectAuthResponseToContainUserData(
+					response.body,
+					EMAIL,
+					ROLE,
+					BIRTHDAY
+				);
+			});
+		});
+		describe("/auth/signin (POST)", () => {
+			it("Returns a cookie", async () => {
 				await request(app.getHttpServer()).post("/auth/signup").send({
 					email: EMAIL,
 					password: PASSWORD,
 					role: ROLE,
 					dateOfBirth: BIRTHDAY
 				});
-				// 	.expect(201, {});
-				// expect(response.status).toEqual(201);
-				// expectAuthResponseToContainUserData(
-				// 	response.body,
-				// 	EMAIL,
-				// 	ROLE,
-				// 	BIRTHDAY
-				// );
-			});
-		});
-		describe("/auth/signin (POST)", () => {
-			it("Returns a cookie", async () => {
-				// const response = await request(app.getHttpServer())
-				// 	.post("/auth/signin")
-				// 	.send({
-				// 		email: EMAIL,
-				// 		password: PASSWORD
-				// 	});
-				// expect(response.status).toEqual(200);
-				// expectResponseToHaveSetCookie(response);
-				// expectAuthResponseToContainUserData(
-				// 	response.body,
-				// 	EMAIL,
-				// 	ROLE,
-				// 	BIRTHDAY
-				// );
+				const response = await request(app.getHttpServer())
+					.post("/auth/signin")
+					.send({
+						email: EMAIL,
+						password: PASSWORD
+					});
+				expect(response.status).toEqual(200);
+				expectResponseToHaveSetCookie(response);
+				expectAuthResponseToContainUserData(
+					response.body,
+					EMAIL,
+					ROLE,
+					BIRTHDAY
+				);
 			});
 		});
 	});
@@ -97,6 +104,6 @@ const expectAuthResponseToContainUserData = (
 
 const expectResponseToHaveSetCookie = (response: Response) => {
 	console.log(response.headers);
-	const setcookieRegex = /session=\w+/;
+	const setcookieRegex = /session=.+;/;
 	expect(setcookieRegex.test(response.headers["set-cookie"])).toBeTruthy();
 };

@@ -73,8 +73,10 @@ export class AuthController {
 			response.setSuccess(true);
 			response.setCode(StatusCode.SUCCESS);
 			response.setMessage("Successfully signed in.");
+			res.status(200);
 		} catch (e) {
 			response.handleExpressError(e, res);
+			response.setMessage("Invalid credentials.");
 		}
 		return response.toObject();
 	}
