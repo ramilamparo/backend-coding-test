@@ -69,6 +69,7 @@
 		"plugin": "^0.3.3",
 		"prettier": "^2.2.1",
 		"serverless": "^2.23.0",
+		"serverless-dotenv-plugin": "^3.9.0",
 		"serverless-offline": "^6.9.0",
 		"serverless-webpack": "^5.3.5",
 		"sqlite3": "^5.0.2",
