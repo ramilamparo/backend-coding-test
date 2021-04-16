@@ -44,6 +44,7 @@ export class AuthController {
 			);
 
 			const userData = this.mapUserModelToAuthObjectResponse(user);
+			res.status(201);
 			response.setData(userData);
 			response.setSuccess(true);
 			response.setCode(StatusCode.SUCCESS);
