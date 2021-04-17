@@ -2,7 +2,7 @@ import { FirebaseAuthMock } from "@test-utils/mocks/FirebaseAuthMock";
 import { MockDB } from "@test-utils/mocks/MockDB";
 import { ParseSessionMiddleware } from "@app/middlewares/ParseSessionMiddleware";
 import { User } from "@db/User";
-import { UserRole } from "@type-utils*";
+import { DummyUser } from "@test-utils/dummy-generator/DummyUser";
 
 describe("ParseSessionMiddleware", () => {
 	const middleware = new ParseSessionMiddleware();
@@ -17,8 +17,7 @@ describe("ParseSessionMiddleware", () => {
 	});
 
 	it("Attaches user to request object on success.", async () => {
-		const EMAIL = "test@mail.com";
-		const ROLE: UserRole = "admin";
+		const userData = DummyUser.createDummyData({ role: "standard" });
 		const req: any = {
 			cookies: {
 				session: ""
@@ -27,21 +26,14 @@ describe("ParseSessionMiddleware", () => {
 		const res: any = {};
 		const next = jest.fn();
 
-		FirebaseAuthMock.mockVerifySessionCookieReturnValueOnce(
-			Promise.resolve({
-				email: EMAIL
-			})
-		);
-		await User.create({
-			dateOfBirth: new Date(),
-			email: EMAIL,
-			firebaseId: "",
-			role: ROLE
-		}).save();
+		FirebaseAuthMock.mockVerifySessionCookieReturnValueOnce({
+			email: userData.email
+		});
+		await User.create(userData).save();
 		await middleware.use(req, res, next);
 
-		expect(req.user.email).toEqual(EMAIL);
-		expect(req.user.role).toEqual(ROLE);
+		expect(req.user.email).toEqual(userData.email);
+		expect(req.user.role).toEqual(userData.role);
 	});
 
 	it("Does not attach user to request object on fail.", async () => {
