@@ -25,7 +25,7 @@ export class FirebaseAuthMock extends FirebaseAppMock {
 	public static resetMocks = () => {
 		FirebaseAppMock.authCreateUserMock.mockClear();
 		FirebaseAppMock.authDeleteUserMock.mockClear();
-		FirebaseAppMock.authVerifySessionCookie.mockClear();
+		FirebaseAppMock.authVerifyIdTokenMock.mockClear();
 		FirebaseAppMock.users = [];
 	};
 
@@ -46,11 +46,11 @@ export class FirebaseAuthMock extends FirebaseAppMock {
 	public static mockVerifySessionCookieReturnValueOnce = (returnedData: {
 		email: string;
 	}) => {
-		FirebaseAppMock.authVerifySessionCookie.mockReturnValueOnce(returnedData);
+		FirebaseAppMock.authVerifyIdTokenMock.mockReturnValueOnce(returnedData);
 	};
 
 	public static hasVerifiedCookie = (cookie: string) => {
-		return FirebaseAppMock.authVerifySessionCookie.mock.calls.some((params) => {
+		return FirebaseAppMock.authVerifyIdTokenMock.mock.calls.some((params) => {
 			const cookieParam = params[0];
 
 			return cookie === cookieParam;
@@ -58,7 +58,7 @@ export class FirebaseAuthMock extends FirebaseAppMock {
 	};
 
 	public static mockVerifySessionCookieRejectOnce = () => {
-		FirebaseAppMock.authVerifySessionCookie.mockImplementationOnce(() => {
+		FirebaseAppMock.authVerifyIdTokenMock.mockImplementationOnce(() => {
 			return Promise.reject();
 		});
 	};

@@ -5,7 +5,7 @@ import { INestApplication } from "@nestjs/common";
 import request, { Response, SuperAgentTest } from "supertest";
 import { MockDB } from "@test-utils/mocks/MockDB";
 import { AppModule } from "../src/app/app.module";
-import { UserRole } from "@type-utils*";
+import { UserRole } from "@type-utils";
 import {
 	DummyBlogPost,
 	DummyBlogPostAttributes

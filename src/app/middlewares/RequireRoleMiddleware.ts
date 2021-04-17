@@ -1,7 +1,7 @@
 import { InvalidPermissionError } from "@app/exceptions/InvalidPermissionError";
 import { InvalidSessionError } from "@app/exceptions/InvalidSessionError";
 import { ResponseBuilder } from "@libs/ResponseBuilder";
-import { UserRole } from "@type-utils*";
+import { UserRole } from "@type-utils";
 import { Response, NextFunction } from "express";
 import { SessionRequest } from "./ParseSessionMiddleware";
 

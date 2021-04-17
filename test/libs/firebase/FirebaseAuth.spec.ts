@@ -55,12 +55,9 @@ describe("FirebaseAuth", () => {
 			const EMAIL = "test@mail.com";
 			const COOKIE = "TESTTEST12345";
 
-			FirebaseAuthMock.mockVerifySessionCookieReturnValueOnce(
-				Promise.resolve({
-					email: EMAIL
-				})
-			);
-
+			FirebaseAuthMock.mockVerifySessionCookieReturnValueOnce({
+				email: EMAIL
+			});
 			const firebaseUser = await firebaseAuth.verifySessionToken(COOKIE);
 
 			expect(FirebaseAuthMock.hasVerifiedCookie(COOKIE)).toBeTruthy();

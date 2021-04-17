@@ -29,7 +29,7 @@ export class FirebaseAppMock {
 		}
 	);
 
-	protected static authVerifySessionCookie = jest.fn();
+	protected static authVerifyIdTokenMock = jest.fn();
 
 	protected static authDeleteUserMock = jest.fn((userId: string) => {
 		const userIndex = FirebaseAppMock.users.findIndex(
@@ -40,7 +40,7 @@ export class FirebaseAppMock {
 		}
 	});
 
-	protected static authGetUser = jest.fn((userId: string) => {
+	protected static authGetUserMock = jest.fn((userId: string) => {
 		const foundUser = FirebaseAppMock.users.find((user) => user.id === userId);
 		if (!foundUser) {
 			return Promise.resolve(undefined);
@@ -51,8 +51,8 @@ export class FirebaseAppMock {
 	protected static authMocks = jest.fn(() => ({
 		createUser: FirebaseAppMock.authCreateUserMock,
 		deleteUser: FirebaseAppMock.authDeleteUserMock,
-		getUser: FirebaseAppMock.authGetUser,
-		verifySessionCookie: FirebaseAppMock.authVerifySessionCookie
+		getUser: FirebaseAppMock.authGetUserMock,
+		verifyIdToken: FirebaseAppMock.authVerifyIdTokenMock
 	}));
 
 	protected static docSetMock = jest.fn<unknown, [object, string]>(
