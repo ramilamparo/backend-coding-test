@@ -50,6 +50,7 @@ export class BlogPostController {
 			response.setSuccess(true);
 			response.setCode(StatusCode.SUCCESS);
 			response.setMessage("Successfully created blog post.");
+			res.status(201);
 		} catch (e) {
 			response.handleExpressError(e, res);
 		}
@@ -75,6 +76,7 @@ export class BlogPostController {
 			response.setSuccess(true);
 			response.setCode(StatusCode.SUCCESS);
 			response.setMessage("Successfully created blog post.");
+			res.status(200);
 		} catch (e) {
 			response.handleExpressError(e, res);
 		}
@@ -96,6 +98,7 @@ export class BlogPostController {
 			response.setSuccess(true);
 			response.setCode(StatusCode.SUCCESS);
 			response.setMessage("Found blog post.");
+			res.status(200);
 		} catch (e) {
 			response.handleExpressError(e, res);
 		}
@@ -133,6 +136,7 @@ export class BlogPostController {
 			response.setSuccess(true);
 			response.setCode(StatusCode.SUCCESS);
 			response.setMessage("Found blog posts.");
+			res.status(200);
 		} catch (e) {
 			response.handleExpressError(e, res);
 		}
@@ -150,6 +154,7 @@ export class BlogPostController {
 			response.setSuccess(true);
 			response.setCode(StatusCode.SUCCESS);
 			response.setMessage("Deleted blog post.");
+			res.status(200);
 		} catch (e) {
 			response.handleExpressError(e, res);
 		}
