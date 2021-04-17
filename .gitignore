@@ -28,3 +28,4 @@ serviceAccountKey.json
 .serverless
 .webpack
 dist
+.build
