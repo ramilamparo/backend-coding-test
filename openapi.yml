@@ -1,0 +1,316 @@
+openapi: 3.0.0
+
+info:
+  version: 1.0.0
+  title: Backend Coding Test API
+  description: A RESTful api documentation for the backend coding test from stayr.
+
+servers:
+  - url: https://68mfax8qwd.execute-api.us-east-1.amazonaws.com/dev
+
+paths:
+  /auth/signin:
+    post:
+      description: Sign in with a username and password.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        "200":
+          $ref: "#/components/responses/AuthSignInPost200Response"
+        "422":
+          $ref: "#/components/responses/AuthSignInPost422Response"
+  /auth/signup:
+    post:
+      description: Sign up with a username and password.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+                - role
+                - dateOfBirth
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+                role:
+                  type: string
+                  enum:
+                    - admin
+                    - standard
+                dateOfBirth:
+                  type: number
+                  description: YYYY-MM-DD
+      responses:
+        "200":
+          $ref: "#/components/responses/AuthSignInPost200Response"
+        "422":
+          $ref: "#/components/responses/AuthSignInPost422Response"
+
+  /blog-posts:
+    get:
+      security:
+        - cookieAuth: []
+      description: Returns a list of blog posts
+      responses:
+        "200":
+          $ref: "#/components/responses/BlogPostsGet200Response"
+        "403":
+          $ref: "#/components/responses/SignInRequiredErrorResponse"
+    post:
+      security:
+        - cookieAuth: []
+      description: Creates a blog post and returns it.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - "title"
+              properties:
+                title:
+                  type: string
+      responses:
+        "201":
+          $ref: "#/components/responses/BlogPostsPost201Response"
+  /blog-posts/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: number
+    get:
+      security:
+        - cookieAuth: []
+      description: Returns a single blogpost
+      responses:
+        "200":
+          $ref: "#/components/responses/BlogPostGet200Response"
+        "403":
+          $ref: "#/components/responses/SignInRequiredErrorResponse"
+        "404":
+          $ref: "#/components/responses/NotFoundErrorResponse"
+    delete:
+      security:
+        - cookieAuth: []
+      description: Deletes a single blogpost
+      responses:
+        "200":
+          $ref: "#/components/responses/BlogPostDelete200Response"
+        "403":
+          $ref: "#/components/responses/SignInRequiredErrorResponse"
+        "404":
+          $ref: "#/components/responses/NotFoundErrorResponse"
+    patch:
+      security:
+        - cookieAuth: []
+      description: Updates a single blogpost
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - "title"
+              properties:
+                title:
+                  type: string
+      responses:
+        "200":
+          $ref: "#/components/responses/BlogPostPatch200Response"
+        "403":
+          $ref: "#/components/responses/SignInRequiredErrorResponse"
+        "404":
+          $ref: "#/components/responses/NotFoundErrorResponse"
+
+# Cookie authentication
+components:
+  securitySchemes:
+    cookieAuth: # arbitrary name for the security scheme; will be used in the "security" key later
+      type: apiKey
+      in: cookie
+      name: session
+
+  schemas:
+    AuthUser:
+      type: object
+      properties:
+        dateOfBirth:
+          type: string
+        id:
+          type: number
+        email:
+          type: string
+        firebaseId:
+          type: string
+        role:
+          type: string # Maybe use an enum?
+
+    BlogPost:
+      type: object
+      properties:
+        docId:
+          type: string
+        id:
+          type: number
+        title:
+          type: string
+
+    BlogPosts:
+      type: array
+      items:
+        $ref: "#/components/schemas/BlogPost"
+
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        success:
+          type: boolean
+        data:
+          nullable: true
+
+  responses:
+    AuthSignInPost200Response:
+      description: Successfully signed in.
+      headers:
+        Set-Cookie:
+          schema:
+            type: string
+            example: session=abcde12345; Path=/;
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: string
+              message:
+                type: string
+              success:
+                type: boolean
+              data:
+                $ref: "#/components/schemas/AuthUser"
+
+    AuthSignInPost422Response:
+      description: Email or password is not correct.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+    BlogPostsGet200Response:
+      description: Successfully returned a list of blog posts
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: string
+              message:
+                type: string
+              success:
+                type: boolean
+              data:
+                $ref: "#/components/schemas/BlogPosts"
+
+    BlogPostsPost201Response:
+      description: Successfully returned a list of blog posts
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: string
+              message:
+                type: string
+              success:
+                type: boolean
+              data:
+                $ref: "#/components/schemas/BlogPost"
+
+    BlogPostGet200Response:
+      description: Successfully returned a blog post
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: string
+              message:
+                type: string
+              success:
+                type: boolean
+              data:
+                $ref: "#/components/schemas/BlogPost"
+
+    BlogPostDelete200Response:
+      description: Successfully deleted blog post.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: string
+              message:
+                type: string
+              success:
+                type: boolean
+              data:
+                $ref: "#/components/schemas/BlogPost"
+
+    BlogPostPatch200Response:
+      description: Successfully updated blog post.
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              code:
+                type: string
+              message:
+                type: string
+              success:
+                type: boolean
+              data:
+                $ref: "#/components/schemas/BlogPost"
+
+    NotFoundErrorResponse:
+      description: Cannot find requested resource.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+    SignInRequiredErrorResponse:
+      description: You need to sign in before accessing this resource.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
