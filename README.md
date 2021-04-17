@@ -34,3 +34,17 @@ To learn more about some of the technologies used, take a look at the following 
 - [AWS Lambda](https://aws.amazon.com/lambda/getting-started/)
 - [PostgreSQL](https://www.postgresql.org/)
 - [ElephantSQL](https://www.elephantsql.com/docs/index.html)
+
+# Required environment variables
+
+You can create a .env file to load the values into the app.
+
+```
+FIREBASE_CLIENT_EMAIL=foo@project.iam.gserviceaccount.com
+FIREBASE_PRIVATE_KEY=------Begin Private Key------\nblahblah...
+FIREBASE_PROJECT_ID=backend-coding-test
+DB_PASSWORD=password
+DB_HOST=postgres.host.com
+DB_PORT=5432
+DB_USERNAME=postgres
+```
