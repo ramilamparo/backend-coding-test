@@ -56,7 +56,7 @@ paths:
                     - admin
                     - standard
                 dateOfBirth:
-                  type: number
+                  type: string
                   description: YYYY-MM-DD
       responses:
         "200":
