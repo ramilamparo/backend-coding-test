@@ -1,5 +1,25 @@
 # Backend Coding Test
 
+# Starting the project
+
+- Install packages with `npm install`
+- Create the necessary environment variables. You can create a `.env` file to load the variables into the app.
+- Run `npm run start:serverless` or `npm run test` to run test runner.
+
+# Required environment variables
+
+You can create a .env file to load the values into the app.
+
+```
+FIREBASE_CLIENT_EMAIL=foo@project.iam.gserviceaccount.com
+FIREBASE_PRIVATE_KEY=------Begin Private Key------\nblahblah...
+FIREBASE_PROJECT_ID=backend-coding-test
+DB_PASSWORD=password
+DB_HOST=postgres.host.com
+DB_PORT=5432
+DB_USERNAME=postgres
+```
+
 ## Test 1
 
 - Fork and clone this project locally then begin the test in the repo.
@@ -34,17 +54,3 @@ To learn more about some of the technologies used, take a look at the following 
 - [AWS Lambda](https://aws.amazon.com/lambda/getting-started/)
 - [PostgreSQL](https://www.postgresql.org/)
 - [ElephantSQL](https://www.elephantsql.com/docs/index.html)
-
-# Required environment variables
-
-You can create a .env file to load the values into the app.
-
-```
-FIREBASE_CLIENT_EMAIL=foo@project.iam.gserviceaccount.com
-FIREBASE_PRIVATE_KEY=------Begin Private Key------\nblahblah...
-FIREBASE_PROJECT_ID=backend-coding-test
-DB_PASSWORD=password
-DB_HOST=postgres.host.com
-DB_PORT=5432
-DB_USERNAME=postgres
-```
