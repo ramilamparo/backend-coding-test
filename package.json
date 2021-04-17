@@ -8,11 +8,9 @@
 		"prebuild": "rimraf dist",
 		"start:serverless": "serverless offline start",
 		"deploy:serverless": "serverless deploy",
-		"start:prod": "node dist/main",
 		"lint": "eslint \"{src,test}/**/*.ts\" --fix",
 		"test:watch": "jest --watchAll --verbose --detectOpenHandles",
 		"test:cov": "jest --coverage",
-		"test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
 		"test:e2e": "jest --config ./test/jest-e2e.json"
 	},
 	"engines": {
