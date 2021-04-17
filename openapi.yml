@@ -309,7 +309,7 @@ components:
             $ref: "#/components/schemas/ErrorResponse"
 
     SignInRequiredErrorResponse:
-      description: You need to sign in before accessing this resource.
+      description: You do not have the permission to access this resource.
       content:
         application/json:
           schema:

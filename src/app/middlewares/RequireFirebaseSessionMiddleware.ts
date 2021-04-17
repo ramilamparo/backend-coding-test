@@ -9,7 +9,7 @@ export class RequireFirebaseSessionMiddleware implements NestMiddleware {
 		if (!req.user) {
 			const response = new ResponseBuilder(null, {
 				code: StatusCode.INVALID_SESSION,
-				message: "You are not logged in.",
+				message: "You need to be logged in to access this resource.",
 				success: false
 			});
 			res.status(403);

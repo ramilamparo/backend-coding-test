@@ -15,10 +15,14 @@ export class RequireRoleMiddleware {
 				const userRole = req.user.role;
 				if (Array.isArray(role)) {
 					if (!role.includes(userRole)) {
-						throw new InvalidPermissionError();
+						throw new InvalidPermissionError(
+							`You need to be a ${role.join(", ")} to access this resource.`
+						);
 					}
 				} else if (role !== userRole) {
-					throw new InvalidPermissionError();
+					throw new InvalidPermissionError(
+						`You need to be a ${role} to access this resource.`
+					);
 				}
 			} catch (e) {
 				const response = new ResponseBuilder();
