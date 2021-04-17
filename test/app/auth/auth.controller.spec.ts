@@ -5,7 +5,6 @@ import { MockDB } from "@test-utils/mocks/MockDB";
 import { AuthController } from "@app/auth/auth.controller";
 import { AuthService } from "@app/auth/auth.service";
 import { UserAssertions } from "@test-utils/assertions/UserAssertions";
-import { InvalidParametersError } from "@app/exceptions/InvalidParametersError";
 import { ExpressResponseMock } from "@test-utils/mocks/ExpressResponseMock";
 import { Response } from "express";
 import { StatusCode } from "@libs/ResponseBuilder";

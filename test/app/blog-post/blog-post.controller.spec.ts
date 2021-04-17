@@ -4,7 +4,6 @@ import {
 	BlogPostResponseObject
 } from "@app/blog-post/blog-post.controller";
 import { BlogPostService } from "@app/blog-post/blog-post.service";
-import { ResourceNotFoundError } from "@app/exceptions/ResourceNotFoundError";
 import { Test, TestingModule } from "@nestjs/testing";
 import { DummyBlogPost } from "@test-utils/dummy-generator/DummyPost";
 import { MockDB } from "@test-utils/mocks/MockDB";

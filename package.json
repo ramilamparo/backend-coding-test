@@ -5,7 +5,6 @@
 	"main": "serverless.ts",
 	"scripts": {
 		"format": "prettier --write \"*.{ts,js,json}\"",
-		"prebuild": "rimraf dist",
 		"start:serverless": "serverless offline start",
 		"deploy:serverless": "serverless deploy",
 		"lint": "eslint \"{src,test}/**/*.ts\" --fix",
